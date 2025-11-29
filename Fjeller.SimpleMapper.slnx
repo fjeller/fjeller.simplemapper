@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/Solution Items/copilot/">
+    <File Path=".github/instructions/csharp.instructions.md" />
+  </Folder>
+  <Project Path="Fjeller.SimpleMapper/Fjeller.SimpleMapper.csproj" />
+</Solution>
