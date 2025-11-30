@@ -20,6 +20,8 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 
 	private const BindingFlags _DEFAULT_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
+	private readonly Dictionary<PropertyInfo, Type> _collectionProperties = new();
+
 	#endregion
 
 	#region Properties
@@ -45,8 +47,57 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	/// ======================================================================================================================
 	public string MappingKey { get; private set; } = null!;
 
+	/// ======================================================================================================================
+	/// <summary>
+	/// Dictionary of collection properties with their element types for deep mapping support
+	/// </summary>
+	/// ======================================================================================================================
+	public Dictionary<PropertyInfo, Type> CollectionProperties => _collectionProperties;
+
 	#endregion
 
+	/// ======================================================================================================================
+	/// <summary>
+	/// Gets the element type from a collection type (handles arrays, List&lt;T&gt;, IEnumerable&lt;T&gt;, etc.)
+	/// </summary>
+	/// <param name="collectionType">The collection type to analyze</param>
+	/// <returns>The element type if found, otherwise null</returns>
+	/// ======================================================================================================================
+	private Type? GetCollectionElementType( Type collectionType )
+	{
+		if ( collectionType.IsArray )
+		{
+			return collectionType.GetElementType();
+		}
+
+		if ( collectionType.IsGenericType )
+		{
+			Type[] genericArguments = collectionType.GetGenericArguments();
+			if ( genericArguments.Length == 1 )
+			{
+				return genericArguments[0];
+			}
+		}
+
+		Type? enumerableInterface = collectionType.GetInterfaces()
+			.FirstOrDefault( i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof( IEnumerable<> ) );
+
+		if ( enumerableInterface is not null )
+		{
+			return enumerableInterface.GetGenericArguments()[0];
+		}
+
+		return null;
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Gets the valid mapping property infos between source and destination types, including collection properties
+	/// </summary>
+	/// <param name="sourceType">The source type</param>
+	/// <param name="destinationType">The destination type</param>
+	/// <returns>List of valid properties that can be mapped</returns>
+	/// ======================================================================================================================
 	private List<PropertyInfo> GetValidMappingPropertyInfos( Type sourceType, Type destinationType )
 	{
 		PropertyInfo[] sourcePropertyInfos = sourceType.GetProperties( _DEFAULT_FLAGS );
@@ -63,14 +114,29 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 		{
 			if ( sourcePropertyInfo.PropertyType != typeof( string ) && typeof( System.Collections.IEnumerable ).IsAssignableFrom( sourcePropertyInfo.PropertyType ) )
 			{
+				PropertyInfo? destinationPropertyInfo = destinationProperties.FirstOrDefault(
+					p => p.Name == sourcePropertyInfo.Name && p.PropertyType == sourcePropertyInfo.PropertyType );
+
+				if ( destinationPropertyInfo is not null )
+				{
+					Type? elementType = GetCollectionElementType( sourcePropertyInfo.PropertyType );
+					if ( elementType is not null )
+					{
+						_collectionProperties[sourcePropertyInfo] = elementType;
+						result.Add( sourcePropertyInfo );
+					}
+				}
 				continue;
 			}
 
-			PropertyInfo? destinationPropertyInfo = destinationProperties.FirstOrDefault( p => p.Name == sourcePropertyInfo.Name && p.PropertyType == sourcePropertyInfo.PropertyType );
-			if ( destinationPropertyInfo == null )
+			PropertyInfo? destinationProperty = destinationProperties.FirstOrDefault(
+				p => p.Name == sourcePropertyInfo.Name && p.PropertyType == sourcePropertyInfo.PropertyType );
+
+			if ( destinationProperty is null )
 			{
 				continue;
 			}
+
 			result.Add( sourcePropertyInfo );
 		}
 
@@ -177,7 +243,7 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	/// ======================================================================================================================
 	void ISimpleMap.ExecuteAfterMapAction( object source, object destination )
 	{
-		if ( this._afterMappingAction == null )
+		if ( this._afterMappingAction is null )
 		{
 			return;
 		}

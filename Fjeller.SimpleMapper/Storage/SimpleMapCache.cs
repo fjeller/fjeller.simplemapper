@@ -35,6 +35,13 @@ internal static class SimpleMapCache
 		return hasInterfaceType ? result : null;
 	}
 
+	internal static void ResetCache()
+	{
+		// Just for Testing so we can reset the cache. Do not use otherwise.
+		_maps.Clear();
+		_sourceLookup.Clear();
+	}
+
 	internal static Type? GetMatchingSourceType( Type destinationType, object source )
 	{
 		// get all interfaces for source type

@@ -1,9 +1,17 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path="PROJECT_ARCHITECTURE.md" />
   </Folder>
   <Folder Name="/Solution Items/copilot/">
     <File Path=".github/instructions/csharp.instructions.md" />
   </Folder>
+  <Folder Name="/Solution Items/copilot/instructions/">
+    <File Path=".github/instructions/csharp.instructions.md" />
+  </Folder>
+  <Folder Name="/Solution Items/copilot/prompts/">
+    <File Path=".github/prompts/csharp-xunit.prompt.md" />
+  </Folder>
   <Project Path="Fjeller.SimpleMapper/Fjeller.SimpleMapper.csproj" />
+  <Project Path="Tests.Fjeller.SimpleMapper/Tests.Fjeller.SimpleMapper.csproj" Id="0de375c7-9420-417d-a54d-5c2ee43d3ab5" />
 </Solution>
