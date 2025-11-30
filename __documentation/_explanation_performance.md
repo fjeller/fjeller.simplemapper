@@ -1,4 +1,4 @@
-# Performance Characteristics
+﻿# Performance Characteristics
 
 **Document Type:** Explanation (Understanding-Oriented)  
 **Purpose:** Understand SimpleMapper's performance profile, benchmarks, and optimization strategies
@@ -49,9 +49,9 @@ public class Person
 | Manual Mapping | 50 ns | 0.6x | 0 B |
 
 **Analysis:**
-- ? **1.8x faster** than reflection-based mapping
-- ? **Zero allocations** (objects reused)
-- ?? **1.6x slower** than manual code (acceptable trade-off for automation)
+- ✅ **1.8x faster** than reflection-based mapping
+- ✅ **Zero allocations** (objects reused)
+- ⚠️ **1.6x slower** than manual code (acceptable trade-off for automation)
 
 ---
 
@@ -78,9 +78,9 @@ public class ComplexModel
 | Manual Mapping | 55 ns | 0.6x | 0 B |
 
 **Analysis:**
-- ? **6.2x faster** than reflection (larger improvement for complex objects)
-- ? **Zero allocations**
-- ? **Near-manual performance** (only 1.6x slower)
+- ✅ **6.2x faster** than reflection (larger improvement for complex objects)
+- ✅ **Zero allocations**
+- ✅ **Near-manual performance** (only 1.6x slower)
 
 ---
 
@@ -90,14 +90,14 @@ public class ComplexModel
 
 | Method | Mean Time | Items/sec | Memory |
 |--------|-----------|-----------|--------|
-| **SimpleMapper** | **8.5 ?s** | **~11.7M** | **0 B** |
-| Reflection | 14.5 ?s | ~6.9M | 0 B |
-| Manual Loop | 5.2 ?s | ~19.2M | 0 B |
+| **SimpleMapper** | **8.5 μs** | **~11.7M** | **0 B** |
+| Reflection | 14.5 μs | ~6.9M | 0 B |
+| Manual Loop | 5.2 μs | ~19.2M | 0 B |
 
 **Analysis:**
-- ? **1.7x faster** than reflection for collections
-- ?? Uses reflection for collection elements (flexibility trade-off)
-- ? **Zero extra allocations** (destination objects pre-allocated)
+- ✅ **1.7x faster** than reflection for collections
+- ⚠️ Uses reflection for collection elements (flexibility trade-off)
+- ✅ **Zero extra allocations** (destination objects pre-allocated)
 
 ---
 
@@ -113,15 +113,15 @@ public class ComplexModel
 | Subsequent Mappings | ~80-90 ns | Cached execution |
 
 **Analysis:**
-- ?? **One-time cost** per unique mapping pair
-- ? **Amortized quickly** (break-even at ~50,000 mappings)
-- ? **Cached forever** (singleton lifetime)
+- ⚠️ **One-time cost** per unique mapping pair
+- ✅ **Amortized quickly** (break-even at ~50,000 mappings)
+- ✅ **Cached forever** (singleton lifetime)
 
 **Break-Even Calculation:**
 ```
-Compilation Cost: 10,000 ?s (10 ms)
-Per-Mapping Savings: 0.065 ?s (560ns - 90ns)
-Break-Even: 10,000 / 0.065 ? 153,846 mappings
+Compilation Cost: 10,000 μs (10 ms)
+Per-Mapping Savings: 0.065 μs (560ns - 90ns)
+Break-Even: 10,000 / 0.065 ≈ 153,846 mappings
 
 Realistic: For 100 mappings, cost is negligible
 ```
@@ -136,8 +136,8 @@ Realistic: For 100 mappings, cost is negligible
 ```csharp
 foreach (var prop in properties)
 {
-    var value = prop.GetValue(source);  // ? Reflection call
-    prop.SetValue(destination, value);   // ? Reflection call
+    var value = prop.GetValue(source);  // ❌ Reflection call
+    prop.SetValue(destination, value);   // ❌ Reflection call
 }
 ```
 
@@ -165,10 +165,10 @@ Total: ~90-110ns
 ```
 
 **No repeated work:**
-- ? No reflection lookups
-- ? No type checking
-- ? No property discovery
-- ? Direct delegate invocation
+- ❌ No reflection lookups
+- ❌ No type checking
+- ❌ No property discovery
+- ✅ Direct delegate invocation
 
 ---
 
@@ -185,9 +185,9 @@ Result: 0 bytes allocated per mapping
 ```
 
 **Garbage Collection Impact:**
-- ? No GC pressure
-- ? No Gen0 collections triggered
-- ? Suitable for high-throughput scenarios
+- ✅ No GC pressure
+- ✅ No Gen0 collections triggered
+- ✅ Suitable for high-throughput scenarios
 
 ---
 
@@ -196,13 +196,13 @@ Result: 0 bytes allocated per mapping
 ### Scenario 1: REST API (1000 req/sec)
 
 ```
-Request ? Map Entity ? Return DTO
+Request → Map Entity → Return DTO
 
 Per-Request Cost: 90 ns
 CPU Time/sec: 0.09 ms (0.009% CPU)
 Throughput: 11 million mappings/sec
 
-Verdict: ? Negligible overhead
+Verdict: ✅ Negligible overhead
 ```
 
 ---
@@ -211,24 +211,24 @@ Verdict: ? Negligible overhead
 
 ```
 Cold Start: 10 ms (one-time)
-10,000 Mappings: 10,000 � 90ns = 0.9 ms
+10,000 Mappings: 10,000 x 90ns = 0.9 ms
 Total: 10.9 ms
 
-Amortized: 1.09 ?s per record
+Amortized: 1.09 μs per record
 
-Verdict: ? Excellent for batch operations
+Verdict: ✅ Excellent for batch operations
 ```
 
 ---
 
-### Scenario 3: Real-Time Systems (<100?s latency)
+### Scenario 3: Real-Time Systems (<100μs latency)
 
 ```
-Single Mapping: 90 ns (0.09 ?s)
-Budget: 100 ?s
-Remaining: 99.91 ?s
+Single Mapping: 90 ns (0.09 μs)
+Budget: 100 μs
+Remaining: 99.91 μs
 
-Verdict: ? Suitable for real-time
+Verdict: ✅ Suitable for real-time
 ```
 
 ---
@@ -238,14 +238,14 @@ Verdict: ? Suitable for real-time
 ```
 1,000,000 mappings
 Approach 1: Map all at once
-  Time: 1,000,000 � 90ns = 90 ms
+  Time: 1,000,000 x 90ns = 90 ms
   Memory: 1M objects in memory
 
 Approach 2: Paginated (1000 per page)
   Time: Same (90 ms total)
   Memory: Only 1000 objects at a time
 
-Verdict: ?? Use pagination for memory efficiency
+Verdict: ⚠️ Use pagination for memory efficiency
 ```
 
 ---
@@ -264,7 +264,7 @@ destination.Id = source.Id;           // ~5ns
 destination.Name = source.Name;       // ~5ns
 destination.CreatedAt = source.CreatedAt; // ~5ns
 
-Total: 20 properties � ~4ns = ~80ns
+Total: 20 properties x ~4ns = ~80ns
 ```
 
 ---
@@ -313,9 +313,9 @@ Example:
 List<User> users = GetUsers(100);
 var dtos = mapper.Map<User, UserDto>(users);
 
-Per-Item: ~85ns � 100 = 8.5 ?s
-Overhead: Collection enumeration (~0.5 ?s)
-Total: ~9 ?s for 100 items
+Per-Item: ~85ns x 100 = 8.5 μs
+Overhead: Collection enumeration (~0.5 μs)
+Total: ~9 μs for 100 items
 
 Trade-off: Flexibility > raw speed for collections
 ```
@@ -340,7 +340,7 @@ Total (100 mapping pairs):      ~161 KB
 - 100 mappings: ~160 KB
 - 1000 mappings: ~1.6 MB
 
-**Verdict:** ? Negligible for modern applications
+**Verdict:** ✅ Negligible for modern applications
 
 ---
 
@@ -366,9 +366,9 @@ Complex: ~560 ns
 Method: Property.GetValue() / SetValue()
 
 Problems:
-? Slow property access
-? Type checking overhead
-? Virtual call overhead
+❌ Slow property access
+❌ Type checking overhead
+❌ Virtual call overhead
 ```
 
 ---
@@ -381,16 +381,16 @@ Complex: ~90 ns (6.2x improvement)
 Method: Expression tree compilation
 
 Benefits:
-? Near-native property access
-? No reflection at runtime
-? Type-safe generated code
+✅ Near-native property access
+✅ No reflection at runtime
+✅ Type-safe generated code
 ```
 
 ---
 
 ## When Performance Matters
 
-### ? SimpleMapper Excels
+### ✅ SimpleMapper Excels
 
 1. **High-Throughput APIs**
    - Millions of mappings per second
@@ -406,7 +406,7 @@ Benefits:
 
 ---
 
-### ?? Consider Alternatives
+### ⚠️ Consider Alternatives
 
 1. **Ultra-Low Latency (<50ns)**
    - Use manual mapping
@@ -435,9 +435,9 @@ Benefits:
 | Flexibility | High | High |
 
 **SimpleMapper Choice:** Compilation
-- ? Better for repeated use (typical scenario)
-- ? Amortized cost negligible
-- ? Production workloads benefit
+- ✅ Better for repeated use (typical scenario)
+- ✅ Amortized cost negligible
+- ✅ Production workloads benefit
 
 ---
 
@@ -449,9 +449,9 @@ Benefits:
 3. **Hybrid (future):** Detect and compile when possible
 
 **Current Decision:** Reflection for collections
-- ? Handles any nested structure
-- ? Dynamic type discovery
-- ?? Slower but acceptable (still ~85ns/item)
+- ✅ Handles any nested structure
+- ✅ Dynamic type discovery
+- ⚠️ Slower but acceptable (still ~85ns/item)
 
 ---
 
@@ -460,10 +460,10 @@ Benefits:
 ### 1. Use Singleton Registration
 
 ```csharp
-// ? Good - Default singleton
+// ✅ Good - Default singleton
 builder.Services.AddSimpleMapper(typeof(Program).Assembly);
 
-// ? Bad - Scoped/Transient
+// ❌ Bad - Scoped/Transient
 builder.Services.AddScoped<ISimpleMapper, SimpleMapper>();
 ```
 
@@ -474,13 +474,13 @@ builder.Services.AddScoped<ISimpleMapper, SimpleMapper>();
 ### 2. Minimize After-Mapping Complexity
 
 ```csharp
-// ? Good - Simple logic
+// ✅ Good - Simple logic
 .ExecuteAfterMapping((src, dest) =>
 {
     dest.FullName = $"{src.FirstName} {src.LastName}";
 });
 
-// ?? Slower - Complex logic
+// ⚠️ Slower - Complex logic
 .ExecuteAfterMapping((src, dest) =>
 {
     dest.Score = CalculateComplexScore(src); // Database call, etc.
@@ -492,10 +492,10 @@ builder.Services.AddScoped<ISimpleMapper, SimpleMapper>();
 ### 3. Paginate Large Collections
 
 ```csharp
-// ? Bad - Map 1M records at once
+// ❌ Bad - Map 1M records at once
 var dtos = mapper.Map<User, UserDto>(millionUsers);
 
-// ? Good - Process in chunks
+// ✅ Good - Process in chunks
 foreach (var page in millionUsers.Chunk(1000))
 {
     var dtos = mapper.Map<User, UserDto>(page);
@@ -517,45 +517,6 @@ var warmup = mapper.Map<User, UserDto>(new User());
 
 ---
 
-## Benchmarking Your Application
-
-### Using BenchmarkDotNet
-
-```csharp
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-
-[MemoryDiagnoser]
-public class MappingBenchmarks
-{
-    private readonly ISimpleMapper _mapper;
-    private readonly User _user;
-    
-    [GlobalSetup]
-    public void Setup()
-    {
-        // Initialize mapper and data
-        _mapper = new SimpleMapper();
-        new UserMappingProfile();
-        _user = new User { /* ... */ };
-        
-        // Warm up (compile)
-        _mapper.Map<User, UserDto>(_user);
-    }
-    
-    [Benchmark]
-    public UserDto MapUser()
-    {
-        return _mapper.Map<User, UserDto>(_user);
-    }
-}
-
-// Run
-BenchmarkRunner.Run<MappingBenchmarks>();
-```
-
----
-
 ## Real-World Performance
 
 ### Case Study: REST API
@@ -568,10 +529,10 @@ BenchmarkRunner.Run<MappingBenchmarks>();
 **Calculation:**
 ```
 Mapping Time: 90 ns/request
-Total CPU Time: 10,000 � 90ns = 0.9 ms/sec
+Total CPU Time: 10,000 x 90ns = 0.9 ms/sec
 CPU Usage: 0.9ms / 1000ms = 0.09% per core
 
-Verdict: ? Negligible overhead
+Verdict: ✅ Negligible overhead
 ```
 
 ---
@@ -580,16 +541,16 @@ Verdict: ? Negligible overhead
 
 **Scenario:**
 - Process 1M records/hour
-- Map entity ? DTO ? export
+- Map entity → DTO → export
 
 **Calculation:**
 ```
 Mappings: 1,000,000/hour
 Time per mapping: 90 ns
-Total time: 1,000,000 � 90ns = 90 ms/hour
+Total time: 1,000,000 x 90ns = 90 ms/hour
 Percentage: 90ms / 3,600,000ms = 0.0025%
 
-Verdict: ? Not a bottleneck
+Verdict: ✅ Not a bottleneck
 ```
 
 ---
@@ -597,21 +558,21 @@ Verdict: ? Not a bottleneck
 ## Summary
 
 **SimpleMapper Performance:**
-- ? **Fast**: 80-90 ns per mapping (6x faster than reflection)
-- ? **Efficient**: Zero allocations per mapping
-- ? **Scalable**: Millions of mappings per second
-- ? **Predictable**: Consistent performance after warm-up
-- ?? **Cold Start**: 5-10 ms per unique mapping (one-time)
+- ✅ **Fast**: 80-90 ns per mapping (6x faster than reflection)
+- ✅ **Efficient**: Zero allocations per mapping
+- ✅ **Scalable**: Millions of mappings per second
+- ✅ **Predictable**: Consistent performance after warm-up
+- ⚠️ **Cold Start**: 5-10 ms per unique mapping (one-time)
 
 **When to Use:**
-- ? High-throughput APIs
-- ? Batch processing
-- ? Real-time systems (sub-microsecond requirements)
-- ? Any scenario where manual mapping is tedious
+- ✅ High-throughput APIs
+- ✅ Batch processing
+- ✅ Real-time systems (sub-microsecond requirements)
+- ✅ Any scenario where manual mapping is tedious
 
 **When to Consider Alternatives:**
-- ?? Ultra-low latency (<50ns)
-- ?? Compile-time only requirements
+- ⚠️ Ultra-low latency (<50ns)
+- ⚠️ Compile-time only requirements
 
 ---
 

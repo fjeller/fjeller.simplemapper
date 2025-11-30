@@ -1,4 +1,4 @@
-# Configuration Reference
+﻿# Configuration Reference
 
 **Document Type:** Reference (Information-Oriented)  
 **Purpose:** Complete reference for all configuration options
@@ -225,10 +225,10 @@ CreateMap<User, UserDto>()
 ### Profile Discovery Requirements
 
 **Must Have:**
-- ? Inherit from `MappingProfile`
-- ? Be a concrete (non-abstract) class
-- ? Have a public parameterless constructor
-- ? Be a public type
+- ✅ Inherit from `MappingProfile`
+- ✅ Be a concrete (non-abstract) class
+- ✅ Have a public parameterless constructor
+- ✅ Be a public type
 
 **Valid Profile:**
 ```csharp
@@ -240,16 +240,16 @@ public class UserProfile : MappingProfile
 
 **Invalid Profiles:**
 ```csharp
-// ? Abstract
+// ❌ Abstract
 public abstract class BaseProfile : MappingProfile { }
 
-// ? Has parameters
+// ❌ Has parameters
 public class UserProfile : MappingProfile
 {
     public UserProfile(ILogger logger) { }
 }
 
-// ? Internal
+// ❌ Internal
 internal class UserProfile : MappingProfile { }
 ```
 
@@ -332,7 +332,7 @@ builder.Services.AddSimpleMapper(options =>
 
 ## Best Practices
 
-### ? Recommended
+### ✅ Recommended
 
 1. **Use Assembly Scanning**
    ```csharp
@@ -352,7 +352,7 @@ builder.Services.AddSimpleMapper(options =>
    builder.Services.AddSimpleMapper(typeof(Program).Assembly);
    ```
 
-### ? Not Recommended
+### ❌ Not Recommended
 
 1. **Manual Registration**
    ```csharp

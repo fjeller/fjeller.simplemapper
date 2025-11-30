@@ -1,4 +1,4 @@
-# API Reference
+﻿# API Reference
 
 **Document Type:** Reference (Information-Oriented)  
 **Purpose:** Complete technical reference for SimpleMapper API
@@ -572,10 +572,10 @@ Base exception for SimpleMapper-specific errors.
 ### Supported Types
 
 SimpleMapper automatically maps properties when:
-- ? Property names match (case-sensitive)
-- ? Property types match exactly
-- ? Properties are public
-- ? Destination property is writable
+- ✅ Property names match (case-sensitive)
+- ✅ Property types match exactly
+- ✅ Properties are public
+- ✅ Destination property is writable
 
 ### Supported Property Types
 
@@ -588,10 +588,10 @@ SimpleMapper automatically maps properties when:
 
 ### Unsupported Scenarios
 
-- ? Properties with different names (use `ExecuteAfterMapping`)
-- ? Properties with incompatible types (use `ExecuteAfterMapping`)
-- ? Private or internal properties (unless using reflection flags)
-- ? Read-only properties (destination must be writable)
+- ❌ Properties with different names (use `ExecuteAfterMapping`)
+- ❌ Properties with incompatible types (use `ExecuteAfterMapping`)
+- ❌ Private or internal properties
+- ❌ Read-only properties (destination must be writable)
 
 ---
 

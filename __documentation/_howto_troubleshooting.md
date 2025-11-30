@@ -1,4 +1,4 @@
-# Troubleshooting Guide
+﻿# Troubleshooting Guide
 
 **Document Type:** How-to Guide (Problem-Oriented)  
 **Time to Complete:** 5-15 minutes (depends on issue)  
@@ -37,7 +37,7 @@ public class UserMappingProfile : MappingProfile
 {
     public UserMappingProfile()
     {
-        CreateMap<User, UserDto>();  // ? Must exist
+        CreateMap<User, UserDto>();  // ✅ Must exist
     }
 }
 ```
@@ -76,11 +76,11 @@ builder.Services.AddSimpleMapper(options =>
 Verify source and destination types match exactly:
 
 ```csharp
-// ? Wrong - Different namespaces
+// ❌ Wrong - Different namespaces
 CreateMap<MyApp.Entities.User, UserDto>();  // Maps Entities.User
 _mapper.Map<MyApp.Models.User, UserDto>(user);  // Tries Models.User
 
-// ? Correct - Same types
+// ✅ Correct - Same types
 CreateMap<MyApp.Models.User, UserDto>();
 _mapper.Map<MyApp.Models.User, UserDto>(user);
 ```
@@ -108,7 +108,7 @@ _mapper.Map<MyApp.Models.User, UserDto>(user);
 Your profile must meet ALL these requirements:
 
 ```csharp
-// ? Valid profile
+// ✅ Valid profile
 public class UserMappingProfile : MappingProfile  // Public, inherits MappingProfile
 {
     public UserMappingProfile()  // Parameterless constructor
@@ -117,16 +117,16 @@ public class UserMappingProfile : MappingProfile  // Public, inherits MappingPro
     }
 }
 
-// ? Won't be discovered - Abstract
+// ❌ Won't be discovered - Abstract
 public abstract class BaseMappingProfile : MappingProfile { }
 
-// ? Won't be discovered - Has parameters
+// ❌ Won't be discovered - Has parameters
 public class ProductProfile : MappingProfile
 {
     public ProductProfile(ILogger logger) { }
 }
 
-// ? Won't be discovered - Internal
+// ❌ Won't be discovered - Internal
 internal class OrderProfile : MappingProfile { }
 ```
 
@@ -161,7 +161,7 @@ InvalidOperationException: Unable to resolve service for type
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 
-// ? Register BEFORE Build()
+// ✅ Register BEFORE Build()
 builder.Services.AddSimpleMapper(typeof(Program).Assembly);
 
 var app = builder.Build();  // Build comes after registration
@@ -215,8 +215,8 @@ public class User
 // Destination
 public class UserDto
 {
-    public string Firstname { get; set; }  // ? Won't map - different case
-    public string FirstName { get; set; }  // ? Will map - exact match
+    public string Firstname { get; set; }  // ❌ Won't map - different case
+    public string FirstName { get; set; }  // ✅ Will map - exact match
 }
 ```
 
@@ -232,8 +232,8 @@ public class User
 // Destination
 public class UserDto
 {
-    public string Age { get; set; }  // ? Won't map - type mismatch
-    public int Age { get; set; }     // ? Will map - type match
+    public string Age { get; set; }  // ❌ Won't map - type mismatch
+    public int Age { get; set; }     // ✅ Will map - type match
 }
 ```
 
@@ -242,9 +242,9 @@ public class UserDto
 ```csharp
 public class User
 {
-    public string Name { get; set; }      // ? Public - will map
-    private string Secret { get; set; }   // ? Private - won't map
-    internal string Internal { get; set; } // ? Internal - won't map
+    public string Name { get; set; }      // ✅ Public - will map
+    private string Secret { get; set; }   // ❌ Private - won't map
+    internal string Internal { get; set; } // ❌ Internal - won't map
 }
 ```
 
@@ -277,14 +277,14 @@ CreateMap<User, UserDto>()
 ```csharp
 // If mapping Order with OrderItems collection
 CreateMap<Order, OrderDto>();
-CreateMap<OrderItem, OrderItemDto>();  // ? Required for collection
+CreateMap<OrderItem, OrderItemDto>();  // ✅ Required for collection
 ```
 
 #### Check Source Collection
 
 ```csharp
 Order order = GetOrder();
-if (order.Items is null)  // ? Source collection is null
+if (order.Items is null)  // ❌ Source collection is null
 {
     order.Items = new List<OrderItem>();  // Initialize
 }
@@ -297,9 +297,9 @@ if (order.Items is null)  // ? Source collection is null
 public List<OrderItem> Items { get; set; }
 
 // Destination - Must be compatible
-public List<OrderItemDto> Items { get; set; }  // ? Works
-public OrderItemDto[] Items { get; set; }      // ? Works (converted)
-public IEnumerable<OrderItemDto> Items { get; set; }  // ? Works
+public List<OrderItemDto> Items { get; set; }  // ✅ Works
+public OrderItemDto[] Items { get; set; }      // ✅ Works (converted)
+public IEnumerable<OrderItemDto> Items { get; set; }  // ✅ Works
 ```
 
 ---
@@ -347,10 +347,10 @@ CreateMap<User, UserDto>()
         dest.FullName = $"{src.FirstName} {src.LastName}";
     });
 
-// ? Won't execute - mapping UserDto -> User (reverse)
+// ❌ Won't execute - mapping UserDto -> User (reverse)
 _mapper.Map<UserDto, User>(dto);
 
-// ? Executes - correct direction
+// ✅ Executes - correct direction
 _mapper.Map<User, UserDto>(user);
 ```
 
@@ -383,11 +383,11 @@ var dto2 = _mapper.Map<User, UserDto>(user2);
 #### Large Collection Mapping
 
 ```csharp
-// ? Bad - Map entire collection at once
+// ❌ Bad - Map entire collection at once
 List<User> millionUsers = GetMillionUsers();
 var dtos = _mapper.Map<User, UserDto>(millionUsers).ToList();  // Memory issue
 
-// ? Good - Use pagination
+// ✅ Good - Use pagination
 int pageSize = 100;
 for (int i = 0; i < millionUsers.Count; i += pageSize)
 {
@@ -400,10 +400,10 @@ for (int i = 0; i < millionUsers.Count; i += pageSize)
 #### Verify Singleton Registration
 
 ```csharp
-// ? Correct - Singleton (default)
+// ✅ Correct - Singleton (default)
 builder.Services.AddSimpleMapper(typeof(Program).Assembly);
 
-// ? Wrong - Creates new instance per request
+// ❌ Wrong - Creates new instance per request
 builder.Services.AddScoped<ISimpleMapper, SimpleMapper>();
 ```
 
@@ -434,13 +434,13 @@ using Fjeller.SimpleMapper.DependencyInjection;
 **Solution:** Ensure destination has parameterless constructor
 
 ```csharp
-// ? Won't work
+// ❌ Won't work
 public class UserDto
 {
     public UserDto(string name) { Name = name; }
 }
 
-// ? Works
+// ✅ Works
 public class UserDto
 {
     public UserDto() { }  // Parameterless constructor
@@ -467,7 +467,7 @@ builder.Services.AddSimpleMapper(options =>
     Console.WriteLine($"Discovered {profiles.Count} profiles:");
     foreach (var profile in profiles)
     {
-        Console.WriteLine($"  ? {profile.Name}");
+        Console.WriteLine($"  ✓ {profile.Name}");
         
         // Instantiate to see mappings
         var instance = Activator.CreateInstance(profile) as MappingProfile;

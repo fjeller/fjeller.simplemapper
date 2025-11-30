@@ -1,4 +1,4 @@
-# How to Map Collections and Nested Objects
+﻿# How to Map Collections and Nested Objects
 
 **Document Type:** How-to Guide (Problem-Oriented)  
 **Time to Complete:** 10 minutes  
@@ -397,14 +397,14 @@ Collection mapping uses reflection for flexibility:
 
 1. **Avoid Unnecessary Nesting**
    ```csharp
-   // ? Flat when possible
+   // ✅ Flat when possible
    public class OrderDto
    {
        public int CustomerId { get; set; }
        public string CustomerName { get; set; }
    }
    
-   // ?? Nested when necessary
+   // ⚠️ Nested when necessary
    public class OrderDto
    {
        public CustomerDto Customer { get; set; }
@@ -413,10 +413,10 @@ Collection mapping uses reflection for flexibility:
 
 2. **Consider Pagination**
    ```csharp
-   // ? Map 10,000 items at once
+   // ❌ Map 10,000 items at once
    var allItems = _mapper.Map<Item, ItemDto>(allItems).ToList();
    
-   // ? Map page by page
+   // ✅ Map page by page
    var page = items.Skip(offset).Take(pageSize);
    var dtos = _mapper.Map<Item, ItemDto>(page).ToList();
    ```
@@ -432,17 +432,17 @@ Collection mapping uses reflection for flexibility:
 
 ## Best Practices
 
-### ? DO
+### ✅ DO
 
 1. **Create Profiles for All Types**
    ```csharp
    CreateMap<Order, OrderDto>();
-   CreateMap<OrderItem, OrderItemDto>();  // ? Required
+   CreateMap<OrderItem, OrderItemDto>();  // ✅ Required
    ```
 
 2. **Use Consistent Collection Types**
    ```csharp
-   public List<OrderItem> Items { get; set; }  // ? Consistent
+   public List<OrderItem> Items { get; set; }  // ✅ Consistent
    ```
 
 3. **Handle Null Collections**
@@ -450,17 +450,17 @@ Collection mapping uses reflection for flexibility:
    .ExecuteAfterMapping((src, dest) => dest.Items ??= new List<ItemDto>())
    ```
 
-### ? DON'T
+### ❌ DON'T
 
 1. **Don't Forget Nested Profiles**
    ```csharp
    CreateMap<Order, OrderDto>();
-   // ? Forgot OrderItem mapping - will fail at runtime
+   // ❌ Forgot OrderItem mapping - will fail at runtime
    ```
 
 2. **Don't Map Huge Collections Without Pagination**
    ```csharp
-   var million = _mapper.Map<Item, ItemDto>(millionItems);  // ? Memory issue
+   var million = _mapper.Map<Item, ItemDto>(millionItems);  // ❌ Memory issue
    ```
 
 ---

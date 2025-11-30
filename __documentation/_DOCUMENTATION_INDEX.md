@@ -1,15 +1,15 @@
-# SimpleMapper Documentation Index
+﻿# SimpleMapper Documentation Index
 
 **Quick Navigation** | [Tutorial](#tutorial) | [How-to Guides](#how-to-guides) | [Reference](#reference) | [Explanation](#explanation)
 
 ---
 
-## ?? Tutorial (Learning Path)
+## 📖 Tutorial (Learning Path)
 
 Start here if you're new to SimpleMapper:
 
 ### [Getting Started Tutorial](_tutorial_getting_started.md)
-**? 15 minutes** | Beginner
+**⏱ 15 minutes** | Beginner
 
 Learn SimpleMapper from scratch by building a simple ASP.NET Core API that maps users to DTOs.
 
@@ -22,12 +22,12 @@ Learn SimpleMapper from scratch by building a simple ASP.NET Core API that maps 
 
 ---
 
-## ?? How-to Guides (Problem Solving)
+## 🔧 How-to Guides (Problem Solving)
 
 Solve specific problems with step-by-step instructions:
 
 ### [Configure Dependency Injection](_howto_dependency_injection.md)
-**? 10 minutes** | Beginner to Intermediate
+**⏱ 10 minutes** | Beginner to Intermediate
 
 Register SimpleMapper in ASP.NET Core, Blazor, and Minimal APIs.
 
@@ -42,7 +42,7 @@ Register SimpleMapper in ASP.NET Core, Blazor, and Minimal APIs.
 ---
 
 ### [Create Mapping Profiles](_howto_mapping_profiles.md)
-**? 10 minutes** | Beginner to Intermediate
+**⏱ 10 minutes** | Beginner to Intermediate
 
 Configure how objects are mapped between types.
 
@@ -57,7 +57,7 @@ Configure how objects are mapped between types.
 ---
 
 ### [Map Collections and Nested Objects](_howto_collections.md)
-**? 10 minutes** | Intermediate
+**⏱ 10 minutes** | Intermediate
 
 Handle lists, arrays, and complex object graphs.
 
@@ -72,7 +72,7 @@ Handle lists, arrays, and complex object graphs.
 ---
 
 ### [Troubleshooting Guide](_howto_troubleshooting.md)
-**? 5-15 minutes** | All Levels
+**⏱ 5-15 minutes** | All Levels
 
 Fix common problems and errors.
 
@@ -87,12 +87,12 @@ Fix common problems and errors.
 
 ---
 
-## ?? Reference (Technical Specifications)
+## 📚 Reference (Technical Specifications)
 
 Look up specific technical details:
 
 ### [API Reference](_reference_api.md)
-**?? Dictionary** | All Levels
+**📖 Dictionary** | All Levels
 
 Complete API documentation with signatures, parameters, and examples.
 
@@ -107,7 +107,7 @@ Complete API documentation with signatures, parameters, and examples.
 ---
 
 ### [Configuration Reference](_reference_configuration.md)
-**?? Dictionary** | All Levels
+**📖 Dictionary** | All Levels
 
 Complete configuration options and settings.
 
@@ -121,12 +121,12 @@ Complete configuration options and settings.
 
 ---
 
-## ?? Explanation (Understanding Concepts)
+## 💡 Explanation (Understanding Concepts)
 
 Deepen your understanding of how SimpleMapper works:
 
 ### [Architecture and Design](_explanation_architecture.md)
-**?? Discussion** | Experienced Developers
+**📝 Discussion** | Experienced Developers
 
 Understand internal design and why decisions were made.
 
@@ -142,7 +142,7 @@ Understand internal design and why decisions were made.
 ---
 
 ### [Performance Characteristics](_explanation_performance.md)
-**?? Discussion** | Performance-Conscious Developers
+**📝 Discussion** | Performance-Conscious Developers
 
 Understand benchmarks, optimization, and when to use SimpleMapper.
 
@@ -157,82 +157,82 @@ Understand benchmarks, optimization, and when to use SimpleMapper.
 
 ---
 
-## ?? Quick Links by Goal
+## 🎯 Quick Links by Goal
 
 ### I want to...
 
 **Learn SimpleMapper from scratch**
-? [Getting Started Tutorial](_tutorial_getting_started.md)
+→ [Getting Started Tutorial](_tutorial_getting_started.md)
 
 **Register SimpleMapper in my app**
-? [Dependency Injection How-to](_howto_dependency_injection.md)
+→ [Dependency Injection How-to](_howto_dependency_injection.md)
 
 **Configure a mapping**
-? [Mapping Profiles How-to](_howto_mapping_profiles.md)
+→ [Mapping Profiles How-to](_howto_mapping_profiles.md)
 
 **Map a collection**
-? [Collections How-to](_howto_collections.md)
+→ [Collections How-to](_howto_collections.md)
 
 **Fix an error**
-? [Troubleshooting Guide](_howto_troubleshooting.md)
+→ [Troubleshooting Guide](_howto_troubleshooting.md)
 
 **Look up a method**
-? [API Reference](_reference_api.md)
+→ [API Reference](_reference_api.md)
 
 **Check configuration options**
-? [Configuration Reference](_reference_configuration.md)
+→ [Configuration Reference](_reference_configuration.md)
 
 **Understand how it works**
-? [Architecture Explanation](_explanation_architecture.md)
+→ [Architecture Explanation](_explanation_architecture.md)
 
 **Optimize performance**
-? [Performance Explanation](_explanation_performance.md)
+→ [Performance Explanation](_explanation_performance.md)
 
 ---
 
-## ?? Documentation by Audience
+## 📊 Documentation by Audience
 
 ### Beginners
 
-1. ? [Getting Started Tutorial](_tutorial_getting_started.md)
-2. ? [Dependency Injection How-to](_howto_dependency_injection.md)
-3. ? [Mapping Profiles How-to](_howto_mapping_profiles.md)
-4. ? [Troubleshooting Guide](_howto_troubleshooting.md)
+1. ✅ [Getting Started Tutorial](_tutorial_getting_started.md)
+2. ✅ [Dependency Injection How-to](_howto_dependency_injection.md)
+3. ✅ [Mapping Profiles How-to](_howto_mapping_profiles.md)
+4. ✅ [Troubleshooting Guide](_howto_troubleshooting.md)
 
 ### Intermediate
 
-1. ? [Collections How-to](_howto_collections.md)
-2. ? [API Reference](_reference_api.md)
-3. ? [Configuration Reference](_reference_configuration.md)
+1. ✅ [Collections How-to](_howto_collections.md)
+2. ✅ [API Reference](_reference_api.md)
+3. ✅ [Configuration Reference](_reference_configuration.md)
 
 ### Advanced
 
-1. ? [Architecture Explanation](_explanation_architecture.md)
-2. ? [Performance Explanation](_explanation_performance.md)
-3. ? All Reference documents
+1. ✅ [Architecture Explanation](_explanation_architecture.md)
+2. ✅ [Performance Explanation](_explanation_performance.md)
+3. ✅ All Reference documents
 
 ---
 
-## ?? Documentation Structure
+## 📂 Documentation Structure
 
 ```
 __documentation/
-??? _tutorial_getting_started.md          (Tutorial)
-??? _howto_dependency_injection.md        (How-to Guide)
-??? _howto_mapping_profiles.md            (How-to Guide)
-??? _howto_collections.md                 (How-to Guide)
-??? _howto_troubleshooting.md             (How-to Guide)
-??? _reference_api.md                     (Reference)
-??? _reference_configuration.md           (Reference)
-??? _explanation_architecture.md          (Explanation)
-??? _explanation_performance.md           (Explanation)
-??? _DOCUMENTATION_INDEX.md               (This file)
-??? _DOCUMENTATION_SUMMARY.md             (Generation summary)
+├── _tutorial_getting_started.md          (Tutorial)
+├── _howto_dependency_injection.md        (How-to Guide)
+├── _howto_mapping_profiles.md            (How-to Guide)
+├── _howto_collections.md                 (How-to Guide)
+├── _howto_troubleshooting.md             (How-to Guide)
+├── _reference_api.md                     (Reference)
+├── _reference_configuration.md           (Reference)
+├── _explanation_architecture.md          (Explanation)
+├── _explanation_performance.md           (Explanation)
+├── _DOCUMENTATION_INDEX.md               (This file)
+└── _DOCUMENTATION_SUMMARY.md             (Generation summary)
 ```
 
 ---
 
-## ?? Learning Paths
+## 🎓 Learning Paths
 
 ### Path 1: Quick Start (30 minutes)
 1. [Getting Started Tutorial](_tutorial_getting_started.md) (15 min)
@@ -254,7 +254,7 @@ __documentation/
 
 ---
 
-## ?? Search by Topic
+## 🔍 Search by Topic
 
 ### Configuration
 - [Dependency Injection](_howto_dependency_injection.md)
@@ -280,7 +280,7 @@ __documentation/
 
 ---
 
-## ?? Mobile-Friendly Navigation
+## 📱 Mobile-Friendly Navigation
 
 **Tutorials**: Learn step-by-step
 - [Getting Started](_tutorial_getting_started.md)
@@ -301,7 +301,7 @@ __documentation/
 
 ---
 
-## ? Frequently Asked Questions
+## ❓ Frequently Asked Questions
 
 **Q: Where do I start?**  
 A: [Getting Started Tutorial](_tutorial_getting_started.md)
@@ -326,7 +326,7 @@ A: [Architecture Explanation](_explanation_architecture.md)
 
 ---
 
-## ?? Popular Pages
+## 🌟 Popular Pages
 
 Most visited documentation pages:
 
@@ -338,27 +338,27 @@ Most visited documentation pages:
 
 ---
 
-## ?? Document Types Explained
+## 📝 Document Types Explained
 
-### Tutorial ??
+### Tutorial 📖
 **Purpose**: Learn by doing  
 **Format**: Step-by-step lesson  
 **Outcome**: Working implementation  
 **Example**: Build your first mapping
 
-### How-to Guide ??
+### How-to Guide 🔧
 **Purpose**: Solve specific problem  
 **Format**: Recipe with steps  
 **Outcome**: Task completed  
 **Example**: Configure dependency injection
 
-### Reference ??
+### Reference 📚
 **Purpose**: Look up information  
 **Format**: Dictionary/specification  
 **Outcome**: Found answer  
 **Example**: Method signature
 
-### Explanation ??
+### Explanation 💡
 **Purpose**: Understand concept  
 **Format**: Discussion  
 **Outcome**: Deeper understanding  
@@ -366,7 +366,7 @@ Most visited documentation pages:
 
 ---
 
-## ?? External Resources
+## 🔗 External Resources
 
 - **GitHub Repository**: [github.com/fjeller/fjeller.simplemapper](https://github.com/fjeller/fjeller.simplemapper)
 - **Issues**: [Report bugs or request features](https://github.com/fjeller/fjeller.simplemapper/issues)
@@ -375,9 +375,9 @@ Most visited documentation pages:
 
 ---
 
-## ?? About This Documentation
+## 📄 About This Documentation
 
-**Framework**: [Di�taxis](https://diataxis.fr/)  
+**Framework**: [Diátaxis](https://diataxis.fr/)  
 **Generated**: December 2024  
 **Version**: 1.0  
 **Status**: Production-ready  
@@ -387,4 +387,4 @@ Found an error or have a suggestion? Submit a PR or open an issue.
 
 ---
 
-**Happy Mapping! ??**
+**Happy Mapping! 🚀**

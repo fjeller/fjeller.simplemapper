@@ -1,4 +1,4 @@
-# Getting Started with SimpleMapper
+﻿# Getting Started with SimpleMapper
 
 **Document Type:** Tutorial (Learning-Oriented)  
 **Time to Complete:** 15 minutes  
@@ -19,10 +19,10 @@ A simple ASP.NET Core Web API that maps between database entities and DTOs (Data
 ## Prerequisites
 
 Before starting, ensure you have:
-- ? .NET 10 SDK installed
-- ? Visual Studio 2022, VS Code, or Rider
-- ? Basic knowledge of C# and ASP.NET Core
-- ? Familiarity with REST APIs (helpful but not required)
+- ✅ .NET 10 SDK installed
+- ✅ Visual Studio 2022, VS Code, or Rider
+- ✅ Basic knowledge of C# and ASP.NET Core
+- ✅ Familiarity with REST APIs (helpful but not required)
 
 ## Step 1: Create a New Project
 
@@ -153,6 +153,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
 ```
 
@@ -287,9 +288,9 @@ Click on `GET /api/Users/{id}` and try it with `id = 1`.
 ```
 
 **Notice:**
-- ? Properties are automatically mapped (Id, FirstName, LastName, Email)
-- ? `FullName` is computed via `ExecuteAfterMapping`
-- ? Sensitive data (`PasswordHash`, `SecurityStamp`) is **not present**
+- ✅ Properties are automatically mapped (Id, FirstName, LastName, Email)
+- ✅ `FullName` is computed via `ExecuteAfterMapping`
+- ✅ Sensitive data (`PasswordHash`, `SecurityStamp`) is **not present**
 
 ### Test the collection endpoint
 
@@ -299,12 +300,12 @@ Click on `GET /api/Users` to see all users mapped.
 
 Congratulations! You've successfully:
 
-? **Installed** SimpleMapper in a .NET project  
-? **Created** a mapping profile with property ignoring and custom logic  
-? **Registered** SimpleMapper with dependency injection  
-? **Injected** and used `ISimpleMapper` in a controller  
-? **Mapped** both single objects and collections  
-? **Excluded** sensitive data from API responses  
+✅ **Installed** SimpleMapper in a .NET project  
+✅ **Created** a mapping profile with property ignoring and custom logic  
+✅ **Registered** SimpleMapper with dependency injection  
+✅ **Injected** and used `ISimpleMapper` in a controller  
+✅ **Mapped** both single objects and collections  
+✅ **Excluded** sensitive data from API responses  
 
 ## Key Concepts Recap
 
@@ -354,4 +355,4 @@ A: Yes! Use `_mapper.Map(source, existingDestination)` to update an existing obj
 
 ---
 
-**?? Congratulations!** You're now ready to use SimpleMapper in your projects. For production applications, explore the how-to guides for advanced scenarios.
+**🎉 Congratulations!** You're now ready to use SimpleMapper in your projects. For production applications, explore the how-to guides for advanced scenarios.

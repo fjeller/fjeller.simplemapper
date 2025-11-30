@@ -1,4 +1,4 @@
-# How to Configure Dependency Injection
+﻿# How to Configure Dependency Injection
 
 **Document Type:** How-to Guide (Problem-Oriented)  
 **Time to Complete:** 10 minutes  
@@ -26,10 +26,10 @@ SimpleMapper offers multiple registration methods to fit different architectural
 ## Method 1: Assembly Scanning (Recommended)
 
 ### When to Use
-- ? Most common scenario
-- ? You have multiple profiles spread across your codebase
-- ? You want automatic discovery
-- ? You follow conventional structure
+- ✅ Most common scenario
+- ✅ You have multiple profiles spread across your codebase
+- ✅ You want automatic discovery
+- ✅ You follow conventional structure
 
 ### How It Works
 SimpleMapper scans the assembly for all classes that inherit from `MappingProfile` and registers them automatically.
@@ -81,16 +81,16 @@ builder.Services.AddSimpleMapperFromAssemblyContaining(
 ### Profile Discovery Requirements
 
 For a profile to be automatically discovered, it must:
-- ? Inherit from `MappingProfile`
-- ? Be a non-abstract class
-- ? Have a public parameterless constructor
-- ? Be a public type
+- ✅ Inherit from `MappingProfile`
+- ✅ Be a non-abstract class
+- ✅ Have a public parameterless constructor
+- ✅ Be a public type
 
 **Example of valid profile:**
 ```csharp
 public class UserMappingProfile : MappingProfile
 {
-    public UserMappingProfile() // ? Parameterless constructor
+    public UserMappingProfile() // ✅ Parameterless constructor
     {
         CreateMap<User, UserDto>();
     }
@@ -99,16 +99,16 @@ public class UserMappingProfile : MappingProfile
 
 **Examples that WON'T be discovered:**
 ```csharp
-// ? Abstract class
+// ❌ Abstract class
 public abstract class BaseMappingProfile : MappingProfile { }
 
-// ? No parameterless constructor
+// ❌ No parameterless constructor
 public class OrderProfile : MappingProfile
 {
     public OrderProfile(ILogger logger) { }
 }
 
-// ? Internal class
+// ❌ Internal class
 internal class InternalProfile : MappingProfile { }
 ```
 
@@ -117,9 +117,9 @@ internal class InternalProfile : MappingProfile { }
 ## Method 2: Explicit Profile Registration
 
 ### When to Use
-- ? You have a small number of profiles
-- ? You want explicit control over what's registered
-- ? You need to pass dependencies to profile constructors (not typical)
+- ✅ You have a small number of profiles
+- ✅ You want explicit control over what's registered
+- ✅ You need to pass dependencies to profile constructors (not typical)
 
 ### Basic Registration
 
@@ -148,9 +148,9 @@ builder.Services.AddSimpleMapper(
 ## Method 3: Configuration Options
 
 ### When to Use
-- ? You need fine-grained control
-- ? You want to mix assembly scanning and explicit registration
-- ? You need advanced configuration
+- ✅ You need fine-grained control
+- ✅ You want to mix assembly scanning and explicit registration
+- ✅ You need advanced configuration
 
 ### Advanced Configuration
 
@@ -299,10 +299,25 @@ SimpleMapper is registered as a **Singleton** by default.
 
 ### Why Singleton?
 
-1. **Thread-Safe**: All internal caches use `ConcurrentDictionary`
-2. **Performance**: Compiled expression trees are reused across requests
-3. **Memory Efficient**: Single instance serves the entire application
-4. **Stateless**: No per-request or per-scope state
+1. **Thread-Safe** ✅
+   - All internal caches use `ConcurrentDictionary`
+   - Compiled expression trees are immutable after creation
+   - No mutable shared state
+
+2. **Performance** ✅
+   - Compiled mappers reused across all requests
+   - No allocation overhead per request
+   - Expression trees compiled once, used many times
+
+3. **Memory Efficient** ✅
+   - Single instance for entire application
+   - Compiled mappers shared across requests
+   - No duplicate compilation
+
+4. **Stateless Design** ✅
+   - No per-request state
+   - No per-scope dependencies
+   - Pure mapping operations
 
 ### Service Registration
 
@@ -315,11 +330,11 @@ services.TryAddSingleton<ISimpleMapper>(serviceProvider =>
 });
 ```
 
-### ?? Do Not Change Lifetime
+### ⚠️ Do Not Change Lifetime
 
 **DON'T** do this:
 ```csharp
-// ? BAD - Wastes resources
+// ❌ BAD - Wastes resources
 services.AddScoped<ISimpleMapper, SimpleMapper>();
 services.AddTransient<ISimpleMapper, SimpleMapper>();
 ```
@@ -430,6 +445,7 @@ app.MapPost("/users", async (
     await repo.AddAsync(user);
     
     var responseDto = mapper.Map<User, UserDto>(user);
+    
     return Results.Created($"/users/{user.Id}", responseDto);
 });
 ```
@@ -438,7 +454,7 @@ app.MapPost("/users", async (
 
 ## Best Practices
 
-### ? DO
+### ✅ DO
 
 1. **Use Assembly Scanning**
    ```csharp
@@ -454,35 +470,35 @@ app.MapPost("/users", async (
 
 3. **Inject ISimpleMapper Interface**
    ```csharp
-   public class UsersController(ISimpleMapper mapper) // ? Good
+   public class UsersController(ISimpleMapper mapper) // ✅ Good
    ```
 
 4. **Keep Profiles Focused**
    ```csharp
-   public class UserMappingProfile : MappingProfile // ? One aggregate
+   public class UserMappingProfile : MappingProfile // ✅ One aggregate
    ```
 
-### ? DON'T
+### ❌ DON'T
 
 1. **Don't Depend on Concrete Type**
    ```csharp
-   public class UsersController(SimpleMapper mapper) // ? Bad
+   public class UsersController(SimpleMapper mapper) // ❌ Bad
    ```
 
 2. **Don't Change Service Lifetime**
    ```csharp
-   services.AddScoped<ISimpleMapper, SimpleMapper>(); // ? Wasteful
+   services.AddScoped<ISimpleMapper, SimpleMapper>(); // ❌ Wasteful
    ```
 
 3. **Don't Create God Profiles**
    ```csharp
-   // ? Bad - 100+ mappings in one profile
+   // ❌ Bad - 100+ mappings in one profile
    public class AllMappingsProfile : MappingProfile
    ```
 
 4. **Don't Manually Instantiate**
    ```csharp
-   var mapper = new SimpleMapper(); // ? Defeats DI purpose
+   var mapper = new SimpleMapper(); // ❌ Defeats DI purpose
    ```
 
 ---
@@ -499,7 +515,7 @@ app.MapPost("/users", async (
 3. Check spelling and namespace imports
 
 ```csharp
-// ? Correct order
+// ✅ Correct order
 builder.Services.AddSimpleMapper(typeof(Program).Assembly);
 var app = builder.Build();
 ```

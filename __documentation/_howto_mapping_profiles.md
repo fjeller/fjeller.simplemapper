@@ -1,4 +1,4 @@
-# How to Create Mapping Profiles
+﻿# How to Create Mapping Profiles
 
 **Document Type:** How-to Guide (Problem-Oriented)  
 **Time to Complete:** 10 minutes  
@@ -105,9 +105,9 @@ CreateMap<User, UserDto>()
 ```
 
 **Advantages:**
-- ? Compile-time checking
-- ? Refactoring-safe (rename detection)
-- ? IntelliSense support
+- ✅ Compile-time checking
+- ✅ Refactoring-safe (rename detection)
+- ✅ IntelliSense support
 
 ### Ignore by Name
 
@@ -268,21 +268,21 @@ CreateMap<Invoice, InvoiceDto>()
         UserDto.cs
         CreateUserDto.cs
         UpdateUserDto.cs
-        UserMappingProfile.cs  ? All user mappings here
+        UserMappingProfile.cs  ✅ All user mappings here
     /Products
         Product.cs
         ProductDto.cs
-        ProductMappingProfile.cs  ? All product mappings here
+        ProductMappingProfile.cs  ✅ All product mappings here
     /Orders
         Order.cs
         OrderDto.cs
-        OrderMappingProfile.cs  ? All order mappings here
+        OrderMappingProfile.cs  ✅ All order mappings here
 ```
 
 **Benefits:**
-- ? Easy to find related mappings
-- ? Clear ownership
-- ? Easier to maintain
+- ✅ Easy to find related mappings
+- ✅ Clear ownership
+- ✅ Easier to maintain
 
 ### Multiple Profiles for Complex Aggregates
 
@@ -307,34 +307,6 @@ public class UserWriteMappingProfile : MappingProfile
     {
         CreateMap<CreateUserDto, User>();
         CreateMap<UpdateUserDto, User>();
-    }
-}
-```
-
-### Base Profile Pattern (Advanced)
-
-Share common configuration across profiles:
-
-```csharp
-public abstract class BaseMappingProfile : MappingProfile
-{
-    protected void ConfigureAuditableMapping<TSource, TDest>()
-        where TSource : IAuditable
-        where TDest : class
-    {
-        CreateMap<TSource, TDest>()
-            .ExecuteAfterMapping((src, dest) =>
-            {
-                // Common auditing logic
-            });
-    }
-}
-
-public class UserMappingProfile : BaseMappingProfile
-{
-    public UserMappingProfile()
-    {
-        ConfigureAuditableMapping<User, UserDto>();
     }
 }
 ```
@@ -427,11 +399,11 @@ CreateMap<User, UserDto>()
 
 ## Best Practices
 
-### ? DO
+### ✅ DO
 
 1. **Keep Profiles Focused**
    ```csharp
-   public class UserMappingProfile : MappingProfile  // ? One aggregate
+   public class UserMappingProfile : MappingProfile  // ✅ One aggregate
    ```
 
 2. **Use After-Mapping for Computed Properties**
@@ -447,14 +419,14 @@ CreateMap<User, UserDto>()
 
 4. **Use Expression-Based Ignoring**
    ```csharp
-   .IgnoreMember(x => x.Password)  // ? Type-safe
+   .IgnoreMember(x => x.Password)  // ✅ Type-safe
    ```
 
-### ? DON'T
+### ❌ DON'T
 
 1. **Don't Create God Profiles**
    ```csharp
-   public class AllMappingsProfile : MappingProfile  // ? Too many mappings
+   public class AllMappingsProfile : MappingProfile  // ❌ Too many mappings
    {
        public AllMappingsProfile()
        {
@@ -467,14 +439,14 @@ CreateMap<User, UserDto>()
    ```csharp
    .ExecuteAfterMapping((src, dest) =>
    {
-       // ? Database calls, external APIs, heavy processing
+       // ❌ Database calls, external APIs, heavy processing
        dest.Score = await CalculateScoreFromExternalApi(src.Id);
    })
    ```
 
 3. **Don't Ignore Required Properties Silently**
    ```csharp
-   .IgnoreMember(x => x.Email)  // ? If email is required, handle properly
+   .IgnoreMember(x => x.Email)  // ❌ If email is required, handle properly
    ```
 
 ---

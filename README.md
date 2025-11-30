@@ -1,15 +1,15 @@
-# SimpleMapper for .NET
+﻿# SimpleMapper for .NET
 
 A fast, lightweight object-to-object mapper for .NET 10 with built-in dependency injection support and expression tree compilation for optimal performance.
 
 ## Why SimpleMapper?
 
-- **?? Fast**: Uses compiled expression trees - up to 6x faster than reflection-based mapping
-- **?? Simple**: Clean, intuitive API - map objects in one line
-- **?? DI Ready**: First-class ASP.NET Core integration with assembly scanning
-- **?? Lightweight**: Minimal dependencies, focused feature set
-- **? Type-Safe**: Compile-time checking with generic methods
-- **?? Flexible**: Support for collections, nested objects, and custom transformations
+- **🚀 Fast**: Uses compiled expression trees - up to 6x faster than reflection-based mapping
+- **🎯 Simple**: Clean, intuitive API - map objects in one line
+- **💉 DI Ready**: First-class ASP.NET Core integration with assembly scanning
+- **📦 Lightweight**: Minimal dependencies, focused feature set
+- **✅ Type-Safe**: Compile-time checking with generic methods
+- **🔧 Flexible**: Support for collections, nested objects, and custom transformations
 
 ## Performance at a Glance
 
@@ -128,12 +128,12 @@ SimpleMapper compiles mappings to IL code at runtime, eliminating reflection ove
 
 ## Documentation
 
-### ?? Learning Path
+### 📖 Learning Path
 
 **New to SimpleMapper?** Start here:
 - **[Getting Started Tutorial](__documentation/_tutorial_getting_started.md)** - Learn SimpleMapper in 15 minutes
 
-### ?? How-to Guides
+### 🔧 How-to Guides
 
 Solve specific problems:
 - **[Dependency Injection](__documentation/_howto_dependency_injection.md)** - Configure DI in ASP.NET Core
@@ -141,17 +141,21 @@ Solve specific problems:
 - **[Collections & Nested Objects](__documentation/_howto_collections.md)** - Map complex structures
 - **[Troubleshooting](__documentation/_howto_troubleshooting.md)** - Fix common issues
 
-### ?? Reference
+### 📚 Reference
 
 Look up specific details:
 - **[API Reference](__documentation/_reference_api.md)** - Complete API documentation
 - **[Configuration Reference](__documentation/_reference_configuration.md)** - All configuration options
 
-### ?? Understanding SimpleMapper
+### 💡 Understanding SimpleMapper
 
 Deep dive into concepts:
 - **[Architecture & Design](__documentation/_explanation_architecture.md)** - How it works internally
 - **[Performance Characteristics](__documentation/_explanation_performance.md)** - Benchmarks and optimization
+
+### 🗺️ Navigation
+
+- **[Documentation Index](__documentation/_DOCUMENTATION_INDEX.md)** - Complete navigation hub
 
 ## Requirements
 
@@ -160,13 +164,13 @@ Deep dive into concepts:
 
 ## Supported Scenarios
 
-? ASP.NET Core Web API  
-? ASP.NET Core MVC  
-? Blazor Server  
-? Blazor WebAssembly  
-? Minimal APIs  
-? Console Applications  
-? Desktop Applications  
+✅ ASP.NET Core Web API  
+✅ ASP.NET Core MVC  
+✅ Blazor Server  
+✅ Blazor WebAssembly  
+✅ Minimal APIs  
+✅ Console Applications  
+✅ Desktop Applications  
 
 ## Compatible Types
 
@@ -235,10 +239,10 @@ Contributions are welcome! Please:
 
 ## Support
 
-- ?? Check the [documentation](__documentation/)
-- ?? Report issues on [GitHub Issues](https://github.com/fjeller/fjeller.simplemapper/issues)
-- ?? Ask questions in [Discussions](https://github.com/fjeller/fjeller.simplemapper/discussions)
+- 📖 Check the [documentation](__documentation/)
+- 🐛 Report issues on [GitHub Issues](https://github.com/fjeller/fjeller.simplemapper/issues)
+- 💬 Ask questions in [Discussions](https://github.com/fjeller/fjeller.simplemapper/discussions)
 
 ---
 
-**Built with ?? for the .NET community**
+**Built with ❤️ for the .NET community**

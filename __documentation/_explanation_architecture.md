@@ -1,4 +1,4 @@
-# Architecture and Design
+﻿# Architecture and Design
 
 **Document Type:** Explanation (Understanding-Oriented)  
 **Purpose:** Understand how SimpleMapper works internally and why design decisions were made
@@ -20,27 +20,27 @@ SimpleMapper is built on three core principles:
 ### High-Level Overview
 
 ```
-???????????????????????????????????????????????????????????????
-?                      ISimpleMapper                          ?
-?                  (Public API Interface)                     ?
-???????????????????????????????????????????????????????????????
-                       ?
-???????????????????????????????????????????????????????????????
-?                    SimpleMapper                             ?
-?              (Main Implementation Class)                     ?
-?                                                              ?
-?  ???????????????  ????????????????  ????????????????????  ?
-?  ?   Profile   ?  ?   Compiled   ?  ?    Collection    ?  ?
-?  ?   System    ?  ?   Mappers    ?  ?     Mapping      ?  ?
-?  ???????????????  ????????????????  ????????????????????  ?
-???????????????????????????????????????????????????????????????
-                        ?
-        ?????????????????????????????????
-        ?               ?               ?
-???????????????  ?????????????????  ????????????????
-? SimpleMap   ?  ? CompiledMap   ?  ?  SimpleMap   ?
-?   Cache     ?  ?    Cache      ?  ?   Storage    ?
-???????????????  ?????????????????  ????????????????
+┌─────────────────────────────────────────────────────────────┐
+│                      ISimpleMapper                          │
+│                  (Public API Interface)                     │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                    SimpleMapper                             │
+│              (Main Implementation Class)                     │
+│                                                              │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │   Profile   │  │   Compiled   │  │    Collection    │  │
+│  │   System    │  │   Mappers    │  │     Mapping      │  │
+│  └─────────────┘  └──────────────┘  └──────────────────┘  │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+┌───────▼─────┐  ┌───────▼────────┐  ┌──▼───────────┐
+│ SimpleMap   │  │ CompiledMap   │  │  SimpleMap   │
+│   Cache     │  │    Cache      │  │   Storage    │
+└─────────────┘  └───────────────┘  └──────────────┘
 ```
 
 ---
@@ -70,9 +70,9 @@ public abstract class MappingProfile
 - **Testable**: Profiles can be tested in isolation
 
 **Alternatives Considered:**
-- ? Attribute-based (`[MapFrom]`, `[MapTo]`) - Clutters domain models
-- ? Convention-based only - Hard to debug, unpredictable
-- ? Profile-based - Best balance of explicitness and convenience
+- ❌ Attribute-based (`[MapFrom]`, `[MapTo]`) - Clutters domain models
+- ❌ Convention-based only - Hard to debug, unpredictable
+- ✅ Profile-based - Best balance of explicitness and convenience
 
 ---
 
@@ -85,20 +85,20 @@ public abstract class MappingProfile
 1. **First Mapping Request:**
    ```
    User Request
-   ? Check CompiledMapCache
-   ? Not Found
-   ? Generate Expression Tree
-   ? Compile to IL Code
-   ? Cache Forever
-   ? Execute
+   → Check CompiledMapCache
+   → Not Found
+   → Generate Expression Tree
+   → Compile to IL Code
+   → Cache Forever
+   → Execute
    ```
 
 2. **Subsequent Requests:**
    ```
    User Request
-   ? Check CompiledMapCache
-   ? Found!
-   ? Execute Cached Mapper (~80-90ns)
+   → Check CompiledMapCache
+   → Found!
+   → Execute Cached Mapper (~80-90ns)
    ```
 
 **Implementation:**
@@ -124,16 +124,16 @@ Expression<Func<TSource, TDest, TDest>> BuildExpression()
 ```
 
 **Why Expression Trees:**
-- ? Near-native performance (compiled to IL)
-- ? Type-safe
-- ? One-time compilation cost
-- ? More complex than reflection
-- ? Initial compilation overhead (~5-10ms)
+- ✅ Near-native performance (compiled to IL)
+- ✅ Type-safe
+- ✅ One-time compilation cost
+- ❌ More complex than reflection
+- ❌ Initial compilation overhead (~5-10ms)
 
 **Alternatives:**
-- ? Pure Reflection - Too slow (50x+ slower)
-- ? Source Generators - Compile-time only, less flexible
-- ? Expression Trees - Best runtime performance
+- ❌ Pure Reflection - Too slow (50x+ slower)
+- ❌ Source Generators - Compile-time only, less flexible
+- ✅ Expression Trees - Best runtime performance
 
 ---
 
@@ -186,10 +186,10 @@ foreach (object item in items)
 ```
 
 **Trade-Offs:**
-- ? Flexibility: Works with any collection structure
-- ? Deep Mapping: Automatically handles nested objects
-- ? Performance: Slower than compiled expressions
-- ? Acceptable: Collections are typically smaller datasets
+- ✅ Flexibility: Works with any collection structure
+- ✅ Deep Mapping: Automatically handles nested objects
+- ❌ Performance: Slower than compiled expressions
+- ✅ Acceptable: Collections are typically smaller datasets
 
 ---
 
@@ -229,10 +229,10 @@ public class UserDto
 ```
 
 **Rejected Because:**
-- ? Pollutes domain models with mapping concerns
-- ? DTOs know about entities (wrong dependency direction)
-- ? Hard to test mappings in isolation
-- ? Difficult to have multiple mappings for same type
+- ❌ Pollutes domain models with mapping concerns
+- ❌ DTOs know about entities (wrong dependency direction)
+- ❌ Hard to test mappings in isolation
+- ❌ Difficult to have multiple mappings for same type
 
 **Our Approach (Profiles):**
 ```csharp
@@ -246,10 +246,10 @@ public class UserMappingProfile : MappingProfile
 ```
 
 **Benefits:**
-- ? Separation of concerns
-- ? Domain models stay clean
-- ? Easy to test
-- ? Multiple mappings possible
+- ✅ Separation of concerns
+- ✅ Domain models stay clean
+- ✅ Easy to test
+- ✅ Multiple mappings possible
 
 ---
 
@@ -261,9 +261,9 @@ CreateMap<User, UserDto>();  // Automatically creates reverse?
 ```
 
 **Rejected Because:**
-- ? Mapping often asymmetric (different rules each direction)
-- ? DTO ? Entity may need validation
-- ? Implicit behavior is confusing
+- ❌ Mapping often asymmetric (different rules each direction)
+- ❌ DTO → Entity may need validation
+- ❌ Implicit behavior is confusing
 
 **Our Approach:**
 ```csharp
@@ -272,9 +272,9 @@ CreateMap<UserDto, User>();     // Explicit
 ```
 
 **Benefits:**
-- ? Explicit intent
-- ? Different rules per direction
-- ? No surprises
+- ✅ Explicit intent
+- ✅ Different rules per direction
+- ✅ No surprises
 
 ---
 
@@ -283,9 +283,9 @@ CreateMap<UserDto, User>();     // Explicit
 **Considered:** Auto-flatten, auto-map different names
 
 **Rejected Because:**
-- ? "Magic" behavior is hard to debug
-- ? Unpredictable in edge cases
-- ? Performance cost of heuristics
+- ❌ "Magic" behavior is hard to debug
+- ❌ Unpredictable in edge cases
+- ❌ Performance cost of heuristics
 
 **Our Approach:**
 ```csharp
@@ -297,9 +297,9 @@ CreateMap<User, UserDto>()
 ```
 
 **Benefits:**
-- ? Explicit transformations
-- ? No hidden logic
-- ? Easy to understand
+- ✅ Explicit transformations
+- ✅ No hidden logic
+- ✅ Easy to understand
 
 ---
 
@@ -337,12 +337,12 @@ CreateMap<Source, Dest>()
 
 ```
 Request
-? Check CompiledMapCache (miss)
-? Get profile from SimpleMapCache
-? Build expression tree (~2-3ms)
-? Compile to IL (~3-5ms)
-? Cache compiled mapper
-? Execute (~80-90ns)
+→ Check CompiledMapCache (miss)
+→ Get profile from SimpleMapCache
+→ Build expression tree (~2-3ms)
+→ Compile to IL (~3-5ms)
+→ Cache compiled mapper
+→ Execute (~80-90ns)
 
 Total: ~5-10ms
 ```
@@ -351,8 +351,8 @@ Total: ~5-10ms
 
 ```
 Request
-? Check CompiledMapCache (hit)
-? Execute cached mapper
+→ Check CompiledMapCache (hit)
+→ Execute cached mapper
 
 Total: ~80-90ns
 ```
@@ -361,11 +361,11 @@ Total: ~80-90ns
 
 ```
 SimpleMapper Instance:               ~1-2 KB
-?? SimpleMapCache
-?  ?? 100 Profile Configs:          ~50 KB
-?? CompiledMapCache
-?  ?? 100 Compiled Mappers:         ~100 KB
-?? Internal State:                   ~10 KB
+├─ SimpleMapCache
+│  └─ 100 Profile Configs:          ~50 KB
+├─ CompiledMapCache
+│  └─ 100 Compiled Mappers:         ~100 KB
+└─ Internal State:                   ~10 KB
 
 Total for 100 Mappings:              ~161 KB
 ```
@@ -376,10 +376,10 @@ Total for 100 Mappings:              ~161 KB
 
 | Approach | Performance | Flexibility | Complexity |
 |----------|-------------|-------------|------------|
-| **Reflection** | ? Slow (1000ns) | ? High | ? Simple |
-| **Expression Trees** | ? Fast (80ns) | ? High | ?? Medium |
-| **Source Generators** | ? Fastest (50ns) | ? Low | ? Complex |
-| **Manual Code** | ? Fastest (50ns) | ? None | ? Simple |
+| **Reflection** | ❌ Slow (1000ns) | ✅ High | ✅ Simple |
+| **Expression Trees** | ✅ Fast (80ns) | ✅ High | ⚠️ Medium |
+| **Source Generators** | ✅ Fastest (50ns) | ❌ Low | ❌ Complex |
+| **Manual Code** | ✅ Fastest (50ns) | ❌ None | ✅ Simple |
 
 **SimpleMapper Choice:** Expression Trees
 - Best balance of performance and flexibility
@@ -446,10 +446,10 @@ SimpleMapper's architecture prioritizes:
 4. **Maintainability**: Clear separation of concerns
 
 **Key Design Decisions:**
-- ? Explicit profiles over attributes
-- ? Expression trees over reflection
-- ? Singleton lifetime for caching
-- ? Fluent configuration API
+- ✅ Explicit profiles over attributes
+- ✅ Expression trees over reflection
+- ✅ Singleton lifetime for caching
+- ✅ Fluent configuration API
 
 ---
 
