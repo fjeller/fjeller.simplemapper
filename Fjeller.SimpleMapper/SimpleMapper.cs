@@ -1,4 +1,5 @@
-﻿using Fjeller.SimpleMapper.Exceptions;
+﻿using Fjeller.SimpleMapper.Compilation;
+using Fjeller.SimpleMapper.Exceptions;
 using Fjeller.SimpleMapper.Extensions;
 using Fjeller.SimpleMapper.Maps;
 using Fjeller.SimpleMapper.Storage;
@@ -241,7 +242,8 @@ public class SimpleMapper : ISimpleMapper
 	/// ========================================================================================================================================================= 
 	/// <summary>
 	/// Maps one object to another. Source and destination types must be provided, as well as the objects. The destination type must have
-	/// a parameterless constructor and an object is automatically created if the destination object is null
+	/// a parameterless constructor and an object is automatically created if the destination object is null.
+	/// Uses compiled expression trees for non-collection properties for optimal performance.
 	/// </summary>
 	/// <typeparam name="TSource">The source type</typeparam>
 	/// <typeparam name="TDestination">The destination type</typeparam>
@@ -268,18 +270,12 @@ public class SimpleMapper : ISimpleMapper
 			throw new ArgumentException( exceptionMessage );
 		}
 
-		foreach ( PropertyInfo property in propertyMap.ValidProperties )
+		Func<TSource, TDestination, TDestination> compiledMapper = CompiledMapCache.GetOrCreateMapper<TSource, TDestination>( propertyMap );
+		destination = compiledMapper( source, destination );
+
+		foreach ( PropertyInfo property in propertyMap.CollectionProperties.Keys )
 		{
-			if ( propertyMap.CollectionProperties.ContainsKey( property ) )
-			{
-				MapCollectionProperty( source, destination, property, destinationType, propertyMap.CollectionProperties[property] );
-			}
-			else
-			{
-				object? value = property.GetValue( source, _BINDINGFLAGS_GETPROPERTY, null, null, null );
-				PropertyInfo? destinationProperty = destinationType.GetProperty( property.Name );
-				destinationProperty?.SetValue( destination, value, _BINDINGFLAGS_SETPROPERTY, null, null, null );
-			}
+			MapCollectionProperty( source, destination, property, destinationType, propertyMap.CollectionProperties[property] );
 		}
 
 		propertyMap.ExecuteAfterMapAction( source, destination );

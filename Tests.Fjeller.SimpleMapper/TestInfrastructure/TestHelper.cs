@@ -1,3 +1,4 @@
+using Fjeller.SimpleMapper.Compilation;
 using Fjeller.SimpleMapper.Maps;
 using Fjeller.SimpleMapper.Storage;
 
@@ -12,12 +13,13 @@ public static class TestHelper
 {
 	/// ======================================================================================================================
 	/// <summary>
-	/// Resets the SimpleMapCache to ensure test isolation. Should be called before each test or test class.
+	/// Resets the SimpleMapCache and CompiledMapCache to ensure test isolation. Should be called before each test or test class.
 	/// </summary>
 	/// ======================================================================================================================
 	public static void ResetMapperCache()
 	{
 		SimpleMapCache.ResetCache();
+		CompiledMapCache.ClearCache();
 	}
 
 	/// ======================================================================================================================
