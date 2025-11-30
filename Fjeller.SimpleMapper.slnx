@@ -11,6 +11,20 @@
   </Folder>
   <Folder Name="/Solution Items/copilot/prompts/">
     <File Path=".github/prompts/csharp-xunit.prompt.md" />
+    <File Path=".github/prompts/documentation-writer.prompt.md" />
+  </Folder>
+  <Folder Name="/Solution Items/Documentation/">
+    <File Path="__documentation/_DOCUMENTATION_INDEX.md" />
+    <File Path="__documentation/_DOCUMENTATION_SUMMARY.md" />
+    <File Path="__documentation/_explanation_architecture.md" />
+    <File Path="__documentation/_explanation_performance.md" />
+    <File Path="__documentation/_howto_collections.md" />
+    <File Path="__documentation/_howto_dependency_injection.md" />
+    <File Path="__documentation/_howto_mapping_profiles.md" />
+    <File Path="__documentation/_howto_troubleshooting.md" />
+    <File Path="__documentation/_reference_api.md" />
+    <File Path="__documentation/_reference_configuration.md" />
+    <File Path="__documentation/_tutorial_getting_started.md" />
   </Folder>
   <Project Path="Fjeller.SimpleMapper/Fjeller.SimpleMapper.csproj" />
   <Project Path="Tests.Fjeller.SimpleMapper/Tests.Fjeller.SimpleMapper.csproj" Id="0de375c7-9420-417d-a54d-5c2ee43d3ab5" />
