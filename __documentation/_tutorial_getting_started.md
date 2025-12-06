@@ -19,7 +19,7 @@ A simple ASP.NET Core Web API that maps between database entities and DTOs (Data
 ## Prerequisites
 
 Before starting, ensure you have:
-- ✅ .NET 10 SDK installed
+- ✅ .NET 9 SDK or later (compatible with .NET 9 and .NET 10)
 - ✅ Visual Studio 2022, VS Code, or Rider
 - ✅ Basic knowledge of C# and ASP.NET Core
 - ✅ Familiarity with REST APIs (helpful but not required)

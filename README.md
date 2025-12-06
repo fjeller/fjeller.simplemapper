@@ -1,6 +1,6 @@
 ﻿# SimpleMapper for .NET
 
-A fast, lightweight object-to-object mapper for .NET 10 with built-in dependency injection support and expression tree compilation for optimal performance.
+A fast, lightweight object-to-object mapper for .NET with built-in dependency injection support and expression tree compilation for optimal performance.
 
 ## Why SimpleMapper?
 
@@ -159,8 +159,10 @@ Deep dive into concepts:
 
 ## Requirements
 
-- .NET 10 or later
-- C# 14 or later
+- .NET 9 or later
+- C# 12 or later
+
+**Note**: The library targets .NET 9 and is fully compatible with both .NET 9 and .NET 10 runtimes. .NET 9 was chosen as the target framework to ensure maximum compatibility with current ecosystem packages.
 
 ## Supported Scenarios
 

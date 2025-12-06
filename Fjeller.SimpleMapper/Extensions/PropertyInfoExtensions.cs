@@ -14,29 +14,26 @@ internal static class PropertyInfoExtensions
 		return source?.GetType().GetProperties() ?? [];
 	}
 
-	extension( Type type )
+	public static IEnumerable<PropertyInfo> GetPropertyInfos( this Type type )
 	{
-		public IEnumerable<PropertyInfo> GetPropertyInfos()
-		{
-			PropertyInfo[] result = type.GetProperties( _defaultFlags );
-			return result;
-		}
+		PropertyInfo[] result = type.GetProperties( _defaultFlags );
+		return result;
+	}
 
-		public PropertyInfo? GetPropertyInfo( string propertyName )
-		{
-			PropertyInfo? result = type.GetProperty( propertyName, _defaultFlags );
-			return result;
-		}
+	public static PropertyInfo? GetPropertyInfo( this Type type, string propertyName )
+	{
+		PropertyInfo? result = type.GetProperty( propertyName, _defaultFlags );
+		return result;
+	}
 
-		public IEnumerable<PropertyInfo> GetPropertyInfos( IEnumerable<string> propertyNames )
+	public static IEnumerable<PropertyInfo> GetPropertyInfos( this Type type, IEnumerable<string> propertyNames )
+	{
+		List<PropertyInfo> result = [];
+		foreach ( string propertyName in propertyNames )
 		{
-			List<PropertyInfo> result = [];
-			foreach ( string propertyName in propertyNames )
-			{
-				PropertyInfo? currentProperty = type.GetPropertyInfo( propertyName );
-				result.AddIfNotNull( currentProperty );
-			}
-			return result;
+			PropertyInfo? currentProperty = type.GetPropertyInfo( propertyName );
+			result.AddIfNotNull( currentProperty );
 		}
+		return result;
 	}
 }
