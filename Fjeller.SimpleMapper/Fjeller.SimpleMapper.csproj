@@ -18,7 +18,6 @@
 		<PackageTags>mapper;mapping;object-mapper;dto;automapper;entity;orm;dependency-injection;performance;expression-trees</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageIcon>icon.png</PackageIcon>
 		<PackageReleaseNotes>Initial release of SimpleMapper with compiled expression trees, dependency injection support, and collection mapping.</PackageReleaseNotes>
 		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
