@@ -73,5 +73,18 @@
 		/// ======================================================================================================================
 		TDestination? Map<TDestination>(object? source)
 			where TDestination : class, new();
+
+		/// ======================================================================================================================
+		/// <summary>
+		/// Maps an IEnumerable of objects with runtime type discovery to an IEnumerable of destination objects.
+		/// The type of each source object is automatically determined at runtime. Null source elements are filtered out
+		/// from the result.
+		/// </summary>
+		/// <typeparam name="TDestination">The destination type</typeparam>
+		/// <param name="source">The source collection containing objects of potentially different types</param>
+		/// <returns>An IEnumerable of destination objects with the mapped data of the source objects, excluding null elements</returns>
+		/// ======================================================================================================================
+		IEnumerable<TDestination> Map<TDestination>(IEnumerable<object?> source) 
+			where TDestination : class, new();
 	}
 }

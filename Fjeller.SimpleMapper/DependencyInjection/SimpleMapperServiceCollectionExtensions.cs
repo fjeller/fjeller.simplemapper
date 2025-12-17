@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Linq;
@@ -66,12 +66,9 @@ public static class SimpleMapperServiceCollectionExtensions
 		{
 			SimpleMapper mapper = new();
 
-			foreach ( MappingProfile profile in options.Profiles )
-			{
-				profile.GetType()
-					.GetConstructor( Type.EmptyTypes )?
-					.Invoke( null );
-			}
+			// Profiles are already instantiated in options.Profiles
+			// Their constructors have already run and registered the mappings
+			// We don't need to do anything here except return the mapper
 
 			return mapper;
 		} );

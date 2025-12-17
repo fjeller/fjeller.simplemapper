@@ -1,4 +1,4 @@
-using Fjeller.SimpleMapper;
+﻿using Fjeller.SimpleMapper;
 using Fjeller.SimpleMapper.Exceptions;
 using Tests.Fjeller.SimpleMapper.TestInfrastructure;
 
@@ -332,4 +332,248 @@ public class SimpleMapperTests : IDisposable
 		Assert.NotNull(result);
 		Assert.Equal(source.Email, result.Email);
 	}
+
+	#region Tests for Map<TDestination>(IEnumerable<object?> source)
+
+	[Fact]
+	public void Map_Should_MapObjectCollection_When_RuntimeTypeDetectionNeeded()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceModel { Id = 1, Name = "First" },
+			new SourceModel { Id = 2, Name = "Second" },
+			new SourceModel { Id = 3, Name = "Third" }
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(3, resultList.Count);
+		Assert.Equal(1, resultList[0].Id);
+		Assert.Equal("First", resultList[0].Name);
+		Assert.Equal(2, resultList[1].Id);
+		Assert.Equal("Second", resultList[1].Name);
+		Assert.Equal(3, resultList[2].Id);
+		Assert.Equal("Third", resultList[2].Name);
+	}
+
+	[Fact]
+	public void Map_Should_FilterNullElements_When_ObjectCollectionContainsNulls()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceModel { Id = 1, Name = "First" },
+			null,
+			new SourceModel { Id = 3, Name = "Third" },
+			null
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(2, resultList.Count);
+		Assert.Equal(1, resultList[0].Id);
+		Assert.Equal("First", resultList[0].Name);
+		Assert.Equal(3, resultList[1].Id);
+		Assert.Equal("Third", resultList[1].Name);
+	}
+
+	[Fact]
+	public void Map_Should_ReturnEmptyEnumerable_When_ObjectCollectionIsEmpty()
+	{
+		IEnumerable<object?> sources = Array.Empty<object?>();
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		Assert.Empty(results);
+	}
+
+	[Fact]
+	public void Map_Should_ReturnEmptyEnumerable_When_ObjectCollectionContainsOnlyNulls()
+	{
+		IEnumerable<object?> sources = new object?[] { null, null, null };
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		Assert.Empty(results);
+	}
+
+	[Fact]
+	public void Map_Should_MapLargeObjectCollection_When_ManyItemsProvided()
+	{
+		List<object?> sources = new();
+		for (int i = 1; i <= 100; i++)
+		{
+			sources.Add(new SourceModel { Id = i, Name = $"Item {i}" });
+		}
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(100, resultList.Count);
+		Assert.Equal(1, resultList[0].Id);
+		Assert.Equal("Item 1", resultList[0].Name);
+		Assert.Equal(100, resultList[99].Id);
+		Assert.Equal("Item 100", resultList[99].Name);
+	}
+
+	[Fact]
+	public void Map_Should_UseDeferredExecution_When_MappingObjectCollection()
+	{
+		List<object?> sources = new()
+		{
+			new SourceModel { Id = 1, Name = "First" },
+			new SourceModel { Id = 2, Name = "Second" }
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		// Add item after creating the enumerable
+		sources.Add(new SourceModel { Id = 3, Name = "Third" });
+
+		// LINQ Select creates a snapshot of the collection when enumerated
+		// Since we're enumerating the list itself (not the Select result yet),
+		// the list modification will be included
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(3, resultList.Count); // Includes the newly added item
+	}
+
+	[Fact]
+	public void Map_Should_HandleInterfaceImplementation_When_MappingObjectCollection()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceEntity { Id = 1, Name = "Entity 1", Description = "Test" },
+			new SourceEntity { Id = 2, Name = "Entity 2", Description = "Test" }
+		};
+
+		IEnumerable<DestinationEntity> results = _mapper.Map<DestinationEntity>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationEntity> resultList = results.ToList();
+		Assert.Equal(2, resultList.Count);
+		Assert.Equal(1, resultList[0].Id);
+		Assert.Equal("Entity 1", resultList[0].Name);
+		Assert.Equal(2, resultList[1].Id);
+		Assert.Equal("Entity 2", resultList[1].Name);
+	}
+
+	[Fact]
+	public void Map_Should_MapWithAfterMappingAction_When_MappingObjectCollectionWithComputation()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceForComputation { Value1 = 10, Value2 = 20 },
+			new SourceForComputation { Value1 = 5, Value2 = 15 }
+		};
+
+		IEnumerable<DestinationWithComputation> results = _mapper.Map<DestinationWithComputation>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationWithComputation> resultList = results.ToList();
+		Assert.Equal(2, resultList.Count);
+		Assert.Equal(30, resultList[0].ComputedValue);
+		Assert.Equal(20, resultList[1].ComputedValue);
+	}
+
+	[Theory]
+	[InlineData(0)]
+	[InlineData(1)]
+	[InlineData(5)]
+	[InlineData(10)]
+	public void Map_Should_HandleVariousCollectionSizes_When_MappingObjectCollection(int count)
+	{
+		List<object?> sources = new();
+		for (int i = 1; i <= count; i++)
+		{
+			sources.Add(new SourceModel { Id = i, Name = $"Item {i}" });
+		}
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		Assert.Equal(count, results.Count());
+	}
+
+	[Fact]
+	public void Map_Should_ThrowException_When_NoMappingExistsForObjectCollectionElement()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new IncompatibleDestination { Id = 1 }
+		};
+
+		Assert.Throws<SimpleMapperException>(() => _mapper.Map<DestinationModel>(sources).ToList());
+	}
+
+	[Fact]
+	public void Map_Should_MapMixedNullsAndValidObjects_When_ObjectCollectionHasInterspersedNulls()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceModel { Id = 1, Name = "First" },
+			null,
+			null,
+			new SourceModel { Id = 2, Name = "Second" },
+			null,
+			new SourceModel { Id = 3, Name = "Third" }
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		Assert.NotNull(results);
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(3, resultList.Count);
+		Assert.Equal(1, resultList[0].Id);
+		Assert.Equal(2, resultList[1].Id);
+		Assert.Equal(3, resultList[2].Id);
+	}
+
+	[Fact]
+	public void Map_Should_PreserveOrder_When_MappingObjectCollection()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceModel { Id = 10, Name = "Tenth" },
+			new SourceModel { Id = 5, Name = "Fifth" },
+			new SourceModel { Id = 1, Name = "First" },
+			new SourceModel { Id = 20, Name = "Twentieth" }
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+
+		List<DestinationModel> resultList = results.ToList();
+		Assert.Equal(10, resultList[0].Id);
+		Assert.Equal(5, resultList[1].Id);
+		Assert.Equal(1, resultList[2].Id);
+		Assert.Equal(20, resultList[3].Id);
+	}
+
+	[Fact]
+	public void Map_Should_WorkWithLinqOperations_When_MappingObjectCollection()
+	{
+		IEnumerable<object?> sources = new object?[]
+		{
+			new SourceModel { Id = 1, Name = "Alice" },
+			new SourceModel { Id = 2, Name = "Bob" },
+			new SourceModel { Id = 3, Name = "Charlie" },
+			new SourceModel { Id = 4, Name = "David" }
+		};
+
+		IEnumerable<DestinationModel> results = _mapper.Map<DestinationModel>(sources);
+		List<DestinationModel> filtered = results.Where(d => d.Id > 2).ToList();
+
+		Assert.Equal(2, filtered.Count);
+		Assert.Equal(3, filtered[0].Id);
+		Assert.Equal("Charlie", filtered[0].Name);
+		Assert.Equal(4, filtered[1].Id);
+		Assert.Equal("David", filtered[1].Name);
+	}
+
+	#endregion
 }

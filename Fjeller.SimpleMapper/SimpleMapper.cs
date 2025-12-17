@@ -407,4 +407,22 @@ public class SimpleMapper : ISimpleMapper
 		return result;
 	}
 
+	/// ========================================================================================================================================================= 
+	/// <summary>
+	/// Maps an IEnumerable of objects with runtime type discovery to an IEnumerable of destination objects.
+	/// Each source object's type is determined at runtime and mapped to the destination type using the appropriate
+	/// registered mapping profile. Null source elements are automatically filtered out from the result.
+	/// </summary>
+	/// <typeparam name="TDestination">The destination type</typeparam>
+	/// <param name="source">The source collection containing objects of potentially different types</param>
+	/// <returns>An IEnumerable of destination objects with the mapped data of the source objects, excluding null elements</returns>
+	/// ========================================================================================================================================================= 
+	public IEnumerable<TDestination> Map<TDestination>(IEnumerable<object?> source)
+		where TDestination : class, new()
+	{
+		Prepare();
+
+		return source.Select(Map<TDestination>).WhereNotNull();
+	}
+
 }
