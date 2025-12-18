@@ -2,6 +2,10 @@
 
 A fast, lightweight object-to-object mapper for .NET with built-in dependency injection support and expression tree compilation for optimal performance.
 
+[![NuGet Version](https://img.shields.io/nuget/v/Fjeller.SimpleMapper)](https://www.nuget.org/packages/Fjeller.SimpleMapper/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Fjeller.SimpleMapper)](https://www.nuget.org/packages/Fjeller.SimpleMapper/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Why SimpleMapper?
 
 - **🚀 Fast**: Uses compiled expression trees - up to 6x faster than reflection-based mapping
