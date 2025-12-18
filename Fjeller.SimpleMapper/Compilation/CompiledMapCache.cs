@@ -1,4 +1,4 @@
-using Fjeller.SimpleMapper.Maps;
+﻿using Fjeller.SimpleMapper.Maps;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -58,6 +58,31 @@ internal static class CompiledMapCache
 
 		List<Expression> expressions = new();
 
+		// 1. Process custom property mappings FIRST (absolute precedence)
+		foreach (KeyValuePair<PropertyInfo, object> customMapping in map.CustomPropertyMappings)
+		{
+			PropertyInfo destProp = customMapping.Key;
+			
+			if (customMapping.Value is Expression<Func<TSource, object>> sourceExpr)
+			{
+				Expression sourceExpression = ReplaceParameter(sourceExpr.Body, sourceExpr.Parameters[0], sourceParam);
+				
+				if (sourceExpression.Type == typeof(object) && sourceExpression.NodeType == ExpressionType.Convert)
+				{
+					sourceExpression = ((UnaryExpression)sourceExpression).Operand;
+				}
+				
+				if (sourceExpression.Type != destProp.PropertyType)
+				{
+					sourceExpression = Expression.Convert(sourceExpression, destProp.PropertyType);
+				}
+				
+				MemberExpression destPropertyExpr = Expression.Property(destParam, destProp);
+				expressions.Add(Expression.Assign(destPropertyExpr, sourceExpression));
+			}
+		}
+
+		// 2. Process automatic property mappings (only if no custom mapping exists)
 		foreach (PropertyInfo sourceProp in map.ValidProperties)
 		{
 			if (!map.CollectionProperties.ContainsKey(sourceProp))
@@ -67,6 +92,11 @@ internal static class CompiledMapCache
 				
 				if (sourceProperty is not null && destProp is not null && destProp.CanWrite)
 				{
+					if (map.CustomPropertyMappings.ContainsKey(destProp))
+					{
+						continue;
+					}
+					
 					MemberExpression sourcePropertyExpr = Expression.Property(sourceParam, sourceProperty);
 					MemberExpression destPropertyExpr = Expression.Property(destParam, destProp);
 					expressions.Add(Expression.Assign(destPropertyExpr, sourcePropertyExpr));
@@ -80,6 +110,23 @@ internal static class CompiledMapCache
 
 		return Expression.Lambda<Func<TSource, TDestination, TDestination>>(
 			block, sourceParam, destParam).Compile();
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Replaces a parameter in an expression tree with a new parameter
+	/// </summary>
+	/// <param name="expression">The expression to process</param>
+	/// <param name="oldParam">The parameter to replace</param>
+	/// <param name="newParam">The new parameter to use</param>
+	/// <returns>The expression with replaced parameters</returns>
+	/// ======================================================================================================================
+	private static Expression ReplaceParameter(
+		Expression expression,
+		ParameterExpression oldParam,
+		ParameterExpression newParam)
+	{
+		return new ParameterReplacer(oldParam, newParam).Visit(expression);
 	}
 
 	/// ======================================================================================================================

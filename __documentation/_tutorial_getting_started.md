@@ -125,6 +125,35 @@ public class UserMappingProfile : MappingProfile
 - `.IgnoreMember()` - Excludes sensitive properties from mapping
 - `.ExecuteAfterMapping()` - Runs custom logic after property mapping (computing FullName)
 
+### Advanced: Using ForMember for Custom Property Mapping
+
+If you prefer explicit property mapping instead of after-mapping logic, you can use `ForMember`:
+
+```csharp
+public class UserMappingProfile : MappingProfile
+{
+    public UserMappingProfile()
+    {
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.FullName, 
+                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .IgnoreMember(nameof(User.PasswordHash))
+            .IgnoreMember(nameof(User.SecurityStamp));
+    }
+}
+```
+
+**ForMember benefits:**
+- ✅ Explicitly defines how each destination property gets its value
+- ✅ Useful when property names differ between source and destination
+- ✅ Great for computed values and transformations
+
+**When to use ForMember vs ExecuteAfterMapping:**
+- Use `ForMember` when you need to map individual properties with custom logic
+- Use `ExecuteAfterMapping` when you need to set multiple properties or use complex business logic
+
+For this tutorial, we'll continue with the `ExecuteAfterMapping` approach.
+
 ## Step 5: Register SimpleMapper in Dependency Injection
 
 Open `Program.cs` and add SimpleMapper to the DI container:
@@ -314,6 +343,7 @@ Congratulations! You've successfully:
 | `MappingProfile` | Defines how types map to each other |
 | `CreateMap<TSource, TDest>()` | Declares a mapping between two types |
 | `.IgnoreMember()` | Excludes properties from mapping |
+| `.ForMember()` | Custom mapping for individual destination properties |
 | `.ExecuteAfterMapping()` | Runs custom logic after property mapping |
 | `AddSimpleMapper()` | Registers mapper in DI with assembly scanning |
 | `ISimpleMapper` | Interface to inject and use the mapper |
@@ -325,6 +355,7 @@ Now that you understand the basics, explore more advanced scenarios:
 
 - **[How to Configure Dependency Injection](_howto_dependency_injection.md)** - Learn all DI registration options
 - **[How to Create Mapping Profiles](_howto_mapping_profiles.md)** - Master profile configuration
+- **[How to Create Custom Property Mappings](_howto_custom_property_mapping.md)** - Learn ForMember in depth
 - **[How to Map Collections](_howto_collections.md)** - Handle complex nested structures
 - **[API Reference](_reference_api.md)** - Explore all available methods
 
@@ -334,7 +365,7 @@ Now that you understand the basics, explore more advanced scenarios:
 A: Yes, SimpleMapper requires explicit profile registration. This gives you control over how objects are mapped.
 
 **Q: Can SimpleMapper map properties with different names?**  
-A: Not automatically. SimpleMapper maps by matching property names and types. For different names, use `ExecuteAfterMapping` to manually assign values.
+A: Yes! Use `ForMember` to map properties with different names, or use `ExecuteAfterMapping` to manually assign values.
 
 **Q: What if I forget to register a profile?**  
 A: You'll get a clear exception: `"There is no mapping available between the types..."`. Simply create and register the profile.
