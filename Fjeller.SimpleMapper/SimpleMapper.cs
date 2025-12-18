@@ -5,6 +5,7 @@ using Fjeller.SimpleMapper.Maps;
 using Fjeller.SimpleMapper.Storage;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -222,6 +223,24 @@ public class SimpleMapper : ISimpleMapper
 			return;
 		}
 
+		foreach ( KeyValuePair<PropertyInfo, object> customMapping in propertyMap.CustomPropertyMappings )
+		{
+			PropertyInfo destProperty = customMapping.Key;
+
+			if ( customMapping.Value is LambdaExpression lambda )
+			{
+				try
+				{
+					Delegate compiledFunc = lambda.Compile();
+					object? value = compiledFunc.DynamicInvoke( source );
+					destProperty.SetValue( destination, value, _BINDINGFLAGS_SETPROPERTY, null, null, null );
+				}
+				catch
+				{
+				}
+			}
+		}
+
 		foreach ( PropertyInfo property in propertyMap.ValidProperties )
 		{
 			if ( propertyMap.CollectionProperties.ContainsKey( property ) )
@@ -342,6 +361,24 @@ public class SimpleMapper : ISimpleMapper
 		{
 			string exceptionMessage = $"There is no mapping available between the types {sourceType.FullName} and {destinationType.FullName}";
 			throw new SimpleMapperException( exceptionMessage );
+		}
+
+		foreach ( KeyValuePair<PropertyInfo, object> customMapping in propertyMap.CustomPropertyMappings )
+		{
+			PropertyInfo destProperty = customMapping.Key;
+
+			if ( customMapping.Value is LambdaExpression lambda )
+			{
+				try
+				{
+					Delegate compiledFunc = lambda.Compile();
+					object? value = compiledFunc.DynamicInvoke( source );
+					destProperty.SetValue( destination, value, _BINDINGFLAGS_SETPROPERTY, null, null, null );
+				}
+				catch
+				{
+				}
+			}
 		}
 
 		foreach ( PropertyInfo property in propertyMap.ValidProperties )

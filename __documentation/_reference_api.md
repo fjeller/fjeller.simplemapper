@@ -277,6 +277,91 @@ CreateMap<User, UserDto>()
 
 ---
 
+##### ForMember(Expression<Func<TDestination, object>> destinationMember, Action<PropertyMappingOptions<TSource, TDestination>> options)
+
+Configures explicit custom mapping for a destination property.
+
+**Signature:**
+```csharp
+ISimpleMap<TSource, TDestination> ForMember(
+    Expression<Func<TDestination, object>> destinationMember,
+    Action<PropertyMappingOptions<TSource, TDestination>> options)
+```
+
+**Parameters:**
+- `destinationMember` - Expression selecting the destination property to configure
+- `options` - Configuration action where `MapFrom` should be called
+
+**Returns:** The map for method chaining
+
+**Exceptions:**
+- `ArgumentException` - Could not extract property from destination expression
+- `InvalidOperationException` - Property already configured with ForMember
+- `InvalidOperationException` - MapFrom was not called in options action
+
+**Behavior:**
+- Overrides automatic name-based mapping for destination property
+- Automatically excludes source property from automatic mapping
+- Cannot be called multiple times for same destination property
+- Must call `MapFrom` inside options action
+
+**Example:**
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+```
+
+**Advanced Examples:**
+
+Map from different property name:
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.Name, 
+        opt => opt.MapFrom(src => src.DisplayName));
+```
+
+Computed values:
+```csharp
+CreateMap<Product, ProductDto>()
+    .ForMember(dest => dest.FinalPrice, 
+        opt => opt.MapFrom(src => src.Price * (1 - src.DiscountPercentage / 100m)));
+```
+
+Conditional logic:
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.Status, 
+        opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive"));
+```
+
+Multiple ForMember calls:
+```csharp
+CreateMap<Employee, EmployeeDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+    .ForMember(dest => dest.YearsEmployed, 
+        opt => opt.MapFrom(src => (DateTime.UtcNow - src.HireDate).Days / 365));
+```
+
+Combine with other features:
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+    .IgnoreMember(x => x.Password)
+    .ExecuteAfterMapping((src, dest) =>
+    {
+        dest.MemberSince = src.CreatedAt.ToString("yyyy-MM-dd");
+    });
+```
+
+**See Also:**
+- [Custom Property Mapping Guide](_howto_custom_property_mapping.md) - Comprehensive ForMember usage
+- [PropertyMappingOptions](#propertymappingoptions) - Options configuration class
+
+---
+
 ## Base Classes
 
 ### MappingProfile
@@ -318,6 +403,84 @@ public class UserMappingProfile : MappingProfile
 ---
 
 ## Configuration Classes
+
+### PropertyMappingOptions<TSource, TDestination>
+
+Configuration options for custom property mapping used with `ForMember`.
+
+**Namespace:** `Fjeller.SimpleMapper.Maps`
+
+**Type Parameters:**
+- `TSource` - Source type for the mapping
+- `TDestination` - Destination type for the mapping
+
+**Constraints:**
+- `TSource : class`
+- `TDestination : class, new()`
+
+#### Methods
+
+##### MapFrom(Expression<Func<TSource, object>> sourceExpression)
+
+Specifies the source property or expression to map from.
+
+**Signature:**
+```csharp
+void MapFrom(Expression<Func<TSource, object>> sourceExpression)
+```
+
+**Parameters:**
+- `sourceExpression` - Expression that selects the source property or computes the value
+
+**Behavior:**
+- Must be called inside `ForMember` options action
+- Only one `MapFrom` call allowed per `ForMember` configuration
+- Expression can access any source property or perform computations
+
+**Example:**
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.Name, 
+        opt => opt.MapFrom(src => src.DisplayName));
+```
+
+**Expression Types:**
+
+Simple property access:
+```csharp
+opt.MapFrom(src => src.PropertyName)
+```
+
+Computed value:
+```csharp
+opt.MapFrom(src => src.Price * src.Quantity)
+```
+
+String formatting:
+```csharp
+opt.MapFrom(src => $"{src.FirstName} {src.LastName}")
+```
+
+Conditional logic:
+```csharp
+opt.MapFrom(src => src.IsActive ? "Active" : "Inactive")
+```
+
+Nested property access:
+```csharp
+opt.MapFrom(src => src.Address.City)
+```
+
+Complex expressions:
+```csharp
+opt.MapFrom(src => src.Items.Sum(i => i.Price * i.Quantity))
+```
+
+**See Also:**
+- [ForMember](#formemberexpressionfunctdestination-object-destinationmember-actionpropertymappingoptionstsource-tdestination-options) - Parent configuration method
+- [Custom Property Mapping Guide](_howto_custom_property_mapping.md) - Usage examples
+
+---
 
 ### SimpleMapperOptions
 
@@ -577,6 +740,8 @@ SimpleMapper automatically maps properties when:
 - ✅ Properties are public
 - ✅ Destination property is writable
 
+**Note:** Use `ForMember` when property names don't match or transformation is needed.
+
 ### Supported Property Types
 
 - **Primitives**: `int`, `long`, `double`, `float`, `bool`, `byte`, etc.
@@ -588,8 +753,8 @@ SimpleMapper automatically maps properties when:
 
 ### Unsupported Scenarios
 
-- ❌ Properties with different names (use `ExecuteAfterMapping`)
-- ❌ Properties with incompatible types (use `ExecuteAfterMapping`)
+- ❌ Properties with different names (use `ForMember` or `ExecuteAfterMapping`)
+- ❌ Properties with incompatible types (use `ForMember` or `ExecuteAfterMapping`)
 - ❌ Private or internal properties
 - ❌ Read-only properties (destination must be writable)
 

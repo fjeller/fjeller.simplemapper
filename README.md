@@ -85,6 +85,15 @@ public class UsersController : ControllerBase
 ### Object-to-Object Mapping
 Map between any two compatible types with automatic property matching by name and type.
 
+### Custom Property Mapping
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+    .ForMember(dest => dest.Status, 
+        opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive"));
+```
+
 ### Dependency Injection
 ```csharp
 // Assembly scanning - automatic profile discovery
@@ -183,6 +192,23 @@ Deep dive into concepts:
 - Nested objects (deep mapping)
 
 ## Examples
+
+### Custom Property Mappings
+```csharp
+// Map from different property names
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DisplayName));
+
+// Computed values
+CreateMap<Product, ProductDto>()
+    .ForMember(dest => dest.FinalPrice, 
+        opt => opt.MapFrom(src => src.Price * (1 - src.DiscountPercentage / 100m)));
+
+// Flattening nested objects
+CreateMap<Order, OrderDto>()
+    .ForMember(dest => dest.CustomerName, 
+        opt => opt.MapFrom(src => $"{src.Customer.FirstName} {src.Customer.LastName}"));
+```
 
 ### Map with Existing Destination
 ```csharp

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Fjeller.SimpleMapper.Maps;
 
-public interface ISimpleMap<TSource, out TDestination> : ISimpleMap
+public interface ISimpleMap<TSource, TDestination> : ISimpleMap
 	where TSource : class
 	where TDestination : class, new()
 {
@@ -49,4 +49,19 @@ public interface ISimpleMap<TSource, out TDestination> : ISimpleMap
 	/// <returns>The SimpleMap object</returns>
 	/// ======================================================================================================================
 	ISimpleMap<TSource, TDestination> ExecuteAfterMapping( Action<TSource, TDestination> action );
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Configures explicit mapping for a destination property from a source expression.
+	/// This overrides any automatic name-based mapping for the destination property and automatically excludes
+	/// the source property from automatic mapping. Calling ForMember multiple times for the same destination
+	/// property will throw an exception.
+	/// </summary>
+	/// <param name="destinationMember">Expression selecting the destination property to configure</param>
+	/// <param name="options">Configuration action where MapFrom should be called to specify the source</param>
+	/// <returns>The SimpleMap object for method chaining</returns>
+	/// ======================================================================================================================
+	ISimpleMap<TSource, TDestination> ForMember(
+		Expression<Func<TDestination, object>> destinationMember,
+		Action<PropertyMappingOptions<TSource, TDestination>> options );
 }

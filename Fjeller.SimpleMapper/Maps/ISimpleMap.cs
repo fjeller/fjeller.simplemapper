@@ -31,6 +31,14 @@ public interface ISimpleMap
 
 	/// ======================================================================================================================
 	/// <summary>
+	/// Dictionary of custom property mappings (destination property → source expression).
+	/// Used by the compilation engine to generate custom mapping code.
+	/// </summary>
+	/// ======================================================================================================================
+	Dictionary<PropertyInfo, object> CustomPropertyMappings { get; }
+
+	/// ======================================================================================================================
+	/// <summary>
 	/// The internally used method to create the valid properties
 	/// </summary>
 	/// ======================================================================================================================
