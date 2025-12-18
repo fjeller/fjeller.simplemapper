@@ -1,4 +1,4 @@
-namespace Tests.Fjeller.SimpleMapper.TestInfrastructure;
+﻿namespace Tests.Fjeller.SimpleMapper.TestInfrastructure;
 
 /// ======================================================================================================================
 /// <summary>
@@ -183,4 +183,30 @@ public class IncompatibleDestination
 {
 	public int Id { get; set; }
 	public int Name { get; set; }
+}
+
+/// ======================================================================================================================
+/// <summary>
+/// Source model with DisplayName for custom mapping tests
+/// </summary>
+/// ======================================================================================================================
+public class SourceWithDisplayName
+{
+	public int Id { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public string DisplayName { get; set; } = string.Empty;
+	public string FirstName { get; set; } = string.Empty;
+	public string LastName { get; set; } = string.Empty;
+}
+
+/// ======================================================================================================================
+/// <summary>
+/// Destination model for custom mapping tests
+/// </summary>
+/// ======================================================================================================================
+public class DestinationWithCustomMapping
+{
+	public int Id { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public string FullName { get; set; } = string.Empty;
 }

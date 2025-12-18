@@ -49,10 +49,27 @@ Configure how objects are mapped between types.
 **Covers:**
 - Basic profiles
 - Ignoring properties
+- Custom property mappings
 - After-mapping actions
 - Profile organization
 - Common patterns
 - Real-world examples
+
+---
+
+### [Create Custom Property Mappings with ForMember](_howto_custom_property_mapping.md)
+**⏱ 15 minutes** | Intermediate
+
+Configure explicit custom mappings for individual properties.
+
+**Covers:**
+- Basic property-to-property mapping with different names
+- Computed values and transformations
+- Combining multiple source properties
+- Working with ForMember alongside other features
+- Advanced scenarios (nested properties, null handling)
+- Common patterns
+- Best practices
 
 ---
 
@@ -170,6 +187,9 @@ Understand benchmarks, optimization, and when to use SimpleMapper.
 **Configure a mapping**
 → [Mapping Profiles How-to](_howto_mapping_profiles.md)
 
+**Map properties with different names**
+→ [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
+
 **Map a collection**
 → [Collections How-to](_howto_collections.md)
 
@@ -201,9 +221,10 @@ Understand benchmarks, optimization, and when to use SimpleMapper.
 
 ### Intermediate
 
-1. ✅ [Collections How-to](_howto_collections.md)
-2. ✅ [API Reference](_reference_api.md)
-3. ✅ [Configuration Reference](_reference_configuration.md)
+1. ✅ [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
+2. ✅ [Collections How-to](_howto_collections.md)
+3. ✅ [API Reference](_reference_api.md)
+4. ✅ [Configuration Reference](_reference_configuration.md)
 
 ### Advanced
 
@@ -220,6 +241,7 @@ __documentation/
 ├── _tutorial_getting_started.md          (Tutorial)
 ├── _howto_dependency_injection.md        (How-to Guide)
 ├── _howto_mapping_profiles.md            (How-to Guide)
+├── _howto_custom_property_mapping.md     (How-to Guide)
 ├── _howto_collections.md                 (How-to Guide)
 ├── _howto_troubleshooting.md             (How-to Guide)
 ├── _reference_api.md                     (Reference)
@@ -243,9 +265,10 @@ __documentation/
 1. [Getting Started Tutorial](_tutorial_getting_started.md)
 2. [Dependency Injection How-to](_howto_dependency_injection.md)
 3. [Mapping Profiles How-to](_howto_mapping_profiles.md)
-4. [Collections How-to](_howto_collections.md)
-5. [API Reference](_reference_api.md) (skim)
-6. [Troubleshooting Guide](_howto_troubleshooting.md) (reference)
+4. [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
+5. [Collections How-to](_howto_collections.md)
+6. [API Reference](_reference_api.md) (skim)
+7. [Troubleshooting Guide](_howto_troubleshooting.md) (reference)
 
 ### Path 3: Performance Deep Dive (1 hour)
 1. [Getting Started Tutorial](_tutorial_getting_started.md) (quick skim)
@@ -263,6 +286,7 @@ __documentation/
 
 ### Mapping
 - [Mapping Profiles How-to](_howto_mapping_profiles.md)
+- [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
 - [Collections How-to](_howto_collections.md)
 - [API Reference](_reference_api.md)
 
@@ -288,6 +312,7 @@ __documentation/
 **How-to**: Solve problems
 - [DI Setup](_howto_dependency_injection.md)
 - [Profiles](_howto_mapping_profiles.md)
+- [Custom Properties](_howto_custom_property_mapping.md)
 - [Collections](_howto_collections.md)
 - [Fixes](_howto_troubleshooting.md)
 
@@ -308,6 +333,9 @@ A: [Getting Started Tutorial](_tutorial_getting_started.md)
 
 **Q: How do I register SimpleMapper?**  
 A: [Dependency Injection How-to](_howto_dependency_injection.md)
+
+**Q: How do I map properties with different names?**  
+A: [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
 
 **Q: How do I ignore properties?**  
 A: [Mapping Profiles How-to](_howto_mapping_profiles.md) - Ignoring Properties section

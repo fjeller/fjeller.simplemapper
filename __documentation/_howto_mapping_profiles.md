@@ -13,9 +13,10 @@ You need to configure how SimpleMapper maps properties between your source and d
 Mapping profiles define the mapping rules between types. This guide covers:
 1. Creating basic profiles
 2. Ignoring properties
-3. After-mapping actions
-4. Profile organization
-5. Common patterns
+3. Custom property mappings with ForMember
+4. After-mapping actions
+5. Profile organization
+6. Common patterns
 
 ## Prerequisites
 
@@ -157,6 +158,96 @@ public class UserMappingProfile : MappingProfile
     }
 }
 ```
+
+---
+
+## Custom Property Mappings with ForMember
+
+### What Is ForMember?
+
+Use `ForMember` when you need explicit control over how a destination property is populated from the source:
+
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+```
+
+### When to Use ForMember
+
+**Use ForMember when:**
+- Property names differ between source and destination
+- Values need transformation or computation
+- Combining multiple source properties
+- Custom logic is required for specific properties
+
+### Basic ForMember Examples
+
+#### Rename Properties
+
+```csharp
+public class User
+{
+    public string DisplayName { get; set; }
+}
+
+public class UserDto
+{
+    public string Name { get; set; }  // Different name
+}
+
+public class UserMappingProfile : MappingProfile
+{
+    public UserMappingProfile()
+    {
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DisplayName));
+    }
+}
+```
+
+#### Computed Values
+
+```csharp
+CreateMap<Person, PersonDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+    .ForMember(dest => dest.Age, 
+        opt => opt.MapFrom(src => (DateTime.UtcNow - src.BirthDate).Days / 365));
+```
+
+#### Conditional Logic
+
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.Status, opt => opt.MapFrom(src =>
+        src.IsDeleted ? "Deleted" :
+        src.IsSuspended ? "Suspended" :
+        src.IsActive ? "Active" : "Inactive"));
+```
+
+### ForMember with Other Features
+
+Combine `ForMember` with `IgnoreMember` and `ExecuteAfterMapping`:
+
+```csharp
+CreateMap<User, UserDto>()
+    .ForMember(dest => dest.FullName, 
+        opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+    .IgnoreMember(x => x.Password)
+    .ExecuteAfterMapping((src, dest) =>
+    {
+        dest.MemberSince = src.CreatedAt.ToString("yyyy-MM-dd");
+    });
+```
+
+### Important Notes
+
+- Each destination property can only have **one** `ForMember` configuration
+- `MapFrom` **must** be called inside the options action
+- Custom mapped properties are automatically excluded from automatic mapping
+
+**For comprehensive ForMember documentation, see:**  
+→ **[Custom Property Mapping Guide](_howto_custom_property_mapping.md)**
 
 ---
 

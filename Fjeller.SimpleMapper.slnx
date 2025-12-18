@@ -19,6 +19,7 @@
     <File Path="__documentation/_explanation_architecture.md" />
     <File Path="__documentation/_explanation_performance.md" />
     <File Path="__documentation/_howto_collections.md" />
+    <File Path="__documentation/_howto_custom_property_mapping.md" />
     <File Path="__documentation/_howto_dependency_injection.md" />
     <File Path="__documentation/_howto_mapping_profiles.md" />
     <File Path="__documentation/_howto_troubleshooting.md" />

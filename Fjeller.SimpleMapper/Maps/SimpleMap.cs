@@ -22,6 +22,8 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 
 	private readonly Dictionary<PropertyInfo, Type> _collectionProperties = new();
 
+	private readonly Dictionary<PropertyInfo, Expression<Func<TSource, object>>> _customPropertyMappings = new();
+
 	#endregion
 
 	#region Properties
@@ -53,6 +55,18 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	/// </summary>
 	/// ======================================================================================================================
 	public Dictionary<PropertyInfo, Type> CollectionProperties => _collectionProperties;
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Dictionary of custom property mappings (destination property → source expression).
+	/// Used by the compilation engine to generate custom mapping code.
+	/// </summary>
+	/// ======================================================================================================================
+	public Dictionary<PropertyInfo, object> CustomPropertyMappings =>
+		_customPropertyMappings.ToDictionary(
+			kvp => kvp.Key,
+			kvp => (object)kvp.Value
+		);
 
 	#endregion
 
@@ -119,6 +133,11 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 
 				if ( destinationPropertyInfo is not null )
 				{
+					if ( _customPropertyMappings.ContainsKey( destinationPropertyInfo ) )
+					{
+						continue;
+					}
+
 					Type? elementType = GetCollectionElementType( sourcePropertyInfo.PropertyType );
 					if ( elementType is not null )
 					{
@@ -133,6 +152,11 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 				p => p.Name == sourcePropertyInfo.Name && p.PropertyType == sourcePropertyInfo.PropertyType );
 
 			if ( destinationProperty is null )
+			{
+				continue;
+			}
+
+			if ( _customPropertyMappings.ContainsKey( destinationProperty ) )
 			{
 				continue;
 			}
@@ -217,6 +241,61 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	public ISimpleMap<TSource, TDestination> ExecuteAfterMapping( Action<TSource, TDestination> action )
 	{
 		this._afterMappingAction = action;
+		return this;
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Configures explicit mapping for a destination property from a source expression.
+	/// This overrides any automatic name-based mapping for the destination property and automatically excludes
+	/// the source property from automatic mapping. Calling ForMember multiple times for the same destination
+	/// property will throw an exception.
+	/// </summary>
+	/// <param name="destinationMember">Expression selecting the destination property to configure</param>
+	/// <param name="options">Configuration action where MapFrom should be called to specify the source</param>
+	/// <returns>The SimpleMap object for method chaining</returns>
+	/// ======================================================================================================================
+	public ISimpleMap<TSource, TDestination> ForMember(
+		Expression<Func<TDestination, object>> destinationMember,
+		Action<PropertyMappingOptions<TSource, TDestination>> options )
+	{
+		PropertyInfo? destProperty = destinationMember.FindProperty();
+		if ( destProperty is null )
+		{
+			throw new ArgumentException( "Could not extract property information from the destination expression", nameof( destinationMember ) );
+		}
+
+		if ( _customPropertyMappings.ContainsKey( destProperty ) )
+		{
+			throw new InvalidOperationException(
+				$"A custom mapping for destination property '{destProperty.Name}' has already been configured. " +
+				$"Multiple ForMember calls for the same destination property are not allowed." );
+		}
+
+		PropertyMappingOptions<TSource, TDestination> mappingOptions = new();
+		options( mappingOptions );
+
+		if ( mappingOptions.SourceExpression is null )
+		{
+			throw new InvalidOperationException(
+				$"MapFrom must be called within the options action for destination property '{destProperty.Name}'. " +
+				$"Example: .ForMember(dest => dest.{destProperty.Name}, opt => opt.MapFrom(src => src.SourceProperty))" );
+		}
+
+		_customPropertyMappings[destProperty] = mappingOptions.SourceExpression;
+
+		try
+		{
+			PropertyInfo? sourceProperty = mappingOptions.SourceExpression.FindProperty();
+			if ( sourceProperty is not null )
+			{
+				IgnoredSourceProperties.AddIfNotContains( sourceProperty );
+			}
+		}
+		catch
+		{
+		}
+
 		return this;
 	}
 
