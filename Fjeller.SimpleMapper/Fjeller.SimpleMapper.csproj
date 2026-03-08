@@ -11,7 +11,7 @@
 		<Authors>Frank Eller</Authors>
 		<Product>SimpleMapper</Product>
 		<Description>A fast, lightweight object-to-object mapper for .NET with built-in dependency injection support and expression tree compilation for optimal performance. Up to 6x faster than reflection-based mapping.</Description>
-		<Copyright>Copyright © Frank Eller 2025</Copyright>
+		<Copyright>Copyright © Frank Eller 2025-2026</Copyright>
 		<PackageProjectUrl>https://github.com/fjeller/fjeller.simplemapper</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/fjeller/fjeller.simplemapper</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
