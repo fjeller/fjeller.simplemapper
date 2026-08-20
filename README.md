@@ -261,7 +261,7 @@ Contributions are welcome! Please:
 
 ## License
 
-[Specify your license here]
+MIT
 
 ## Links
 
