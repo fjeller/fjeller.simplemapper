@@ -39,7 +39,7 @@ public class SimpleMapper : ISimpleMapper
 	/// <param name="destination">The destination object where the collection will be mapped</param>
 	/// <param name="sourceProperty">The source property info for the collection</param>
 	/// <param name="destinationType">The destination type</param>
-	/// <param name="elementType">The element type of the collection</param>
+	/// <param name="elementType">The destination element type of the collection (may differ from the source element type when a mapping between the two exists)</param>
 	/// ========================================================================================================================================================= 
 	private void MapCollectionProperty(
 		object source,
@@ -63,14 +63,13 @@ public class SimpleMapper : ISimpleMapper
 
 		Type destinationPropertyType = destinationProperty.PropertyType;
 
-		if ( destinationPropertyType.IsGenericType &&
-		     destinationPropertyType.GetGenericTypeDefinition() == typeof( List<> ) )
-		{
-			MapToList( sourceCollection, destination, destinationProperty, elementType );
-		}
-		else if ( destinationPropertyType.IsArray )
+		if ( destinationPropertyType.IsArray )
 		{
 			MapToArray( sourceCollection, destination, destinationProperty, elementType );
+		}
+		else if ( IsHashSetTargetType( destinationPropertyType ) )
+		{
+			MapToHashSet( sourceCollection, destination, destinationProperty, elementType );
 		}
 		else if ( typeof( System.Collections.IEnumerable ).IsAssignableFrom( destinationPropertyType ) )
 		{
@@ -80,26 +79,41 @@ public class SimpleMapper : ISimpleMapper
 
 	/// ========================================================================================================================================================= 
 	/// <summary>
-	/// Maps a collection to a List&lt;T&gt; with deep mapping support
+	/// Determines whether the destination property type is HashSet&lt;T&gt;, ISet&lt;T&gt; or IReadOnlySet&lt;T&gt;,
+	/// which requires materializing the mapped items into a HashSet&lt;T&gt; instance.
+	/// </summary>
+	/// <param name="type">The destination property type to check</param>
+	/// <returns>True if the type should be materialized as a HashSet&lt;T&gt;, false otherwise</returns>
+	/// ========================================================================================================================================================= 
+	private static bool IsHashSetTargetType( Type type )
+	{
+		if ( !type.IsGenericType )
+		{
+			return false;
+		}
+
+		Type genericDefinition = type.GetGenericTypeDefinition();
+
+		return genericDefinition == typeof( HashSet<> ) ||
+			   genericDefinition == typeof( ISet<> ) ||
+			   genericDefinition == typeof( IReadOnlySet<> );
+	}
+
+	/// ========================================================================================================================================================= 
+	/// <summary>
+	/// Builds a List&lt;T&gt; (of the given destination element type) from a source collection, deep-mapping
+	/// complex elements when a registered mapping exists between the source item's runtime type and the
+	/// destination element type. Used as the shared basis for materializing List&lt;T&gt;, arrays and HashSet&lt;T&gt;
+	/// destination properties.
 	/// </summary>
 	/// <param name="sourceCollection">The source collection</param>
-	/// <param name="destination">The destination object</param>
-	/// <param name="destinationProperty">The destination property info</param>
-	/// <param name="elementType">The element type</param>
+	/// <param name="elementType">The destination element type</param>
+	/// <returns>A List&lt;T&gt; (as IList) containing the (possibly deep-mapped) items</returns>
 	/// ========================================================================================================================================================= 
-	private void MapToList(
-		object sourceCollection,
-		object destination,
-		PropertyInfo destinationProperty,
-		Type elementType )
+	private System.Collections.IList BuildMappedList( object sourceCollection, Type elementType )
 	{
 		Type listType = typeof( List<> ).MakeGenericType( elementType );
-		System.Collections.IList? list = Activator.CreateInstance( listType ) as System.Collections.IList;
-
-		if ( list is null )
-		{
-			return;
-		}
+		System.Collections.IList list = (System.Collections.IList)Activator.CreateInstance( listType )!;
 
 		bool isComplexType = IsComplexType( elementType );
 
@@ -120,18 +134,37 @@ public class SimpleMapper : ISimpleMapper
 					{
 						MapObject( item, mappedItem, item.GetType(), elementType );
 						list.Add( mappedItem );
+						continue;
 					}
 				}
-				else
-				{
-					list.Add( item );
-				}
+
+				list.Add( item );
 			}
 			else
 			{
 				list.Add( item );
 			}
 		}
+
+		return list;
+	}
+
+	/// ========================================================================================================================================================= 
+	/// <summary>
+	/// Maps a collection to a List&lt;T&gt; with deep mapping support
+	/// </summary>
+	/// <param name="sourceCollection">The source collection</param>
+	/// <param name="destination">The destination object</param>
+	/// <param name="destinationProperty">The destination property info</param>
+	/// <param name="elementType">The destination element type</param>
+	/// ========================================================================================================================================================= 
+	private void MapToList(
+		object sourceCollection,
+		object destination,
+		PropertyInfo destinationProperty,
+		Type elementType )
+	{
+		System.Collections.IList list = BuildMappedList( sourceCollection, elementType );
 
 		destinationProperty.SetValue( destination, list, _BINDINGFLAGS_SETPROPERTY, null, null, null );
 	}
@@ -143,7 +176,7 @@ public class SimpleMapper : ISimpleMapper
 	/// <param name="sourceCollection">The source collection</param>
 	/// <param name="destination">The destination object</param>
 	/// <param name="destinationProperty">The destination property info</param>
-	/// <param name="elementType">The element type</param>
+	/// <param name="elementType">The destination element type</param>
 	/// ========================================================================================================================================================= 
 	private void MapToArray(
 		object sourceCollection,
@@ -151,46 +184,37 @@ public class SimpleMapper : ISimpleMapper
 		PropertyInfo destinationProperty,
 		Type elementType )
 	{
-		List<object> items = new();
-		bool isComplexType = IsComplexType( elementType );
-
-		foreach ( object? item in (System.Collections.IEnumerable)sourceCollection )
-		{
-			if ( item is null )
-			{
-				continue;
-			}
-
-			if ( isComplexType )
-			{
-				ISimpleMap? itemMap = SimpleMapCache.GetMap( item.GetType(), elementType );
-				if ( itemMap is not null )
-				{
-					object? mappedItem = Activator.CreateInstance( elementType );
-					if ( mappedItem is not null )
-					{
-						MapObject( item, mappedItem, item.GetType(), elementType );
-						items.Add( mappedItem );
-					}
-				}
-				else
-				{
-					items.Add( item );
-				}
-			}
-			else
-			{
-				items.Add( item );
-			}
-		}
+		System.Collections.IList items = BuildMappedList( sourceCollection, elementType );
 
 		Array array = Array.CreateInstance( elementType, items.Count );
-		for ( int i = 0; i < items.Count; i++ )
-		{
-			array.SetValue( items[i], i );
-		}
+		items.CopyTo( array, 0 );
 
 		destinationProperty.SetValue( destination, array, _BINDINGFLAGS_SETPROPERTY, null, null, null );
+	}
+
+	/// ========================================================================================================================================================= 
+	/// <summary>
+	/// Maps a collection to a HashSet&lt;T&gt; with deep mapping support. Note that, as with any HashSet&lt;T&gt;,
+	/// items that compare equal via the destination element type's default Equals/GetHashCode implementation
+	/// will be deduplicated.
+	/// </summary>
+	/// <param name="sourceCollection">The source collection</param>
+	/// <param name="destination">The destination object</param>
+	/// <param name="destinationProperty">The destination property info</param>
+	/// <param name="elementType">The destination element type</param>
+	/// ========================================================================================================================================================= 
+	private void MapToHashSet(
+		object sourceCollection,
+		object destination,
+		PropertyInfo destinationProperty,
+		Type elementType )
+	{
+		System.Collections.IList items = BuildMappedList( sourceCollection, elementType );
+
+		Type hashSetType = typeof( HashSet<> ).MakeGenericType( elementType );
+		object? hashSet = Activator.CreateInstance( hashSetType, items );
+
+		destinationProperty.SetValue( destination, hashSet, _BINDINGFLAGS_SETPROPERTY, null, null, null );
 	}
 
 	/// ========================================================================================================================================================= 

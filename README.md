@@ -266,7 +266,7 @@ Contributions are welcome! Please:
 ## Links
 
 - **GitHub**: [https://github.com/fjeller/fjeller.simplemapper](https://github.com/fjeller/fjeller.simplemapper)
-- **NuGet**: [Coming soon]
+- **NuGet**: [https://www.nuget.org/packages/Fjeller.SimpleMapper](https://www.nuget.org/packages/Fjeller.SimpleMapper)
 - **Issues**: [https://github.com/fjeller/fjeller.simplemapper/issues](https://github.com/fjeller/fjeller.simplemapper/issues)
 
 ## Support

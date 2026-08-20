@@ -24,7 +24,9 @@ public interface ISimpleMap
 
 	/// ======================================================================================================================
 	/// <summary>
-	/// Dictionary of collection properties with their element types for deep mapping support
+	/// Dictionary of collection properties with their destination element types for deep mapping support.
+	/// The destination element type may differ from the source element type as long as a mapping between
+	/// the two element types has been registered (or the element types are identical).
 	/// </summary>
 	/// ======================================================================================================================
 	Dictionary<PropertyInfo, Type> CollectionProperties { get; }

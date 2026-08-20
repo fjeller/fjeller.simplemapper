@@ -218,6 +218,95 @@ public class ProductMappingProfile : MappingProfile
 
 ---
 
+## Cross-Type Inner Collection Mapping
+
+Collection properties no longer need to have the exact same collection type on source and destination. As long as a mapping profile exists for the element types, SimpleMapper will map the elements automatically - even when the collection shapes differ.
+
+### Different Element Types
+
+```csharp
+// Models
+public class Order
+{
+    public int Id { get; set; }
+    public List<OrderItem> Items { get; set; }
+}
+
+public class OrderItem
+{
+    public int ProductId { get; set; }
+    public decimal Price { get; set; }
+}
+
+// DTOs - element type differs (OrderItem -> OrderItemDto)
+public class OrderDto
+{
+    public int Id { get; set; }
+    public List<OrderItemDto> Items { get; set; }
+}
+
+public class OrderItemDto
+{
+    public int ProductId { get; set; }
+    public decimal Price { get; set; }
+}
+
+// Profile - order of registration does not matter
+public class OrderMappingProfile : MappingProfile
+{
+    public OrderMappingProfile()
+    {
+        CreateMap<Order, OrderDto>();       // Can be registered before or after the element map
+        CreateMap<OrderItem, OrderItemDto>();
+    }
+}
+```
+
+**Important:** If no mapping profile exists for the element types, the collection property is silently skipped (left unmapped), consistent with how unmapped simple properties behave.
+
+### Supported Destination Collection Shapes
+
+In addition to `List<T>`, `T[]`, and `IEnumerable<T>`, the following destination collection shapes are supported for inner collection mapping:
+
+- `ICollection<T>`
+- `IList<T>`
+- `IReadOnlyCollection<T>`
+- `IReadOnlyList<T>`
+- `HashSet<T>`
+- `ISet<T>`
+- `IReadOnlySet<T>`
+
+```csharp
+public class OrderDto
+{
+    public IReadOnlyCollection<OrderItemDto> Items { get; set; }  // ✅ Works
+}
+
+public class TagsDto
+{
+    public HashSet<TagDto> Tags { get; set; }  // ✅ Works
+}
+```
+
+### HashSet Deduplication
+
+When the destination collection is a `HashSet<T>` (or `ISet<T>` / `IReadOnlySet<T>`), standard `HashSet<T>` equality semantics apply. If multiple mapped elements are equal according to the destination type's equality comparer, duplicates are removed automatically:
+
+```csharp
+public class TagsDto : IEquatable<TagsDto>
+{
+    public string Name { get; set; }
+
+    public bool Equals(TagsDto other) => other is not null && Name == other.Name;
+    public override bool Equals(object obj) => Equals(obj as TagsDto);
+    public override int GetHashCode() => Name?.GetHashCode() ?? 0;
+}
+
+// Source has two tags named "Sale"; destination HashSet<TagDto> will contain it only once.
+```
+
+---
+
 ## Deep Nesting
 
 ### Hierarchical Structures
