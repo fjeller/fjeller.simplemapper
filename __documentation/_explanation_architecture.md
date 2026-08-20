@@ -317,6 +317,12 @@ CreateMap<Order, OrderDto>()
     });
 ```
 
+### Cross-Type Inner Collection Mapping
+
+Collection properties are resolved by name and element-type compatibility rather than exact collection type equality. When building a profile's valid properties, SimpleMapper consults `SimpleMapCache.GetMap()` to check whether a map exists for the source and destination element types of a collection property. Because this lookup happens lazily against the cache rather than requiring the element map to be registered first, registration order between an outer map (e.g. `Order -> OrderDto`) and its element map (e.g. `OrderItem -> OrderItemDto`) does not matter.
+
+At mapping time, collection materialization is centralized so that `List<T>`, arrays, `IEnumerable<T>`-style interfaces, read-only collection interfaces, and set-like destinations (`HashSet<T>`, `ISet<T>`, `IReadOnlySet<T>`) all share the same deep-mapping logic, differing only in how the final collection instance is constructed. Set-like destinations rely on the standard `HashSet<T>` equality semantics, so mapped elements that compare equal are deduplicated automatically. If no element map is registered for a collection property's element types, the property is silently skipped, consistent with how unmapped simple properties are handled.
+
 ### Custom Type Converters
 
 Currently not supported. Workaround:

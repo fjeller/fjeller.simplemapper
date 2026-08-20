@@ -169,6 +169,8 @@ IEnumerable<UserDto> dtos = _mapper.Map<User, UserDto>(users);
 List<UserDto> dtoList = dtos.ToList();
 ```
 
+**Note:** Inner collection properties (e.g. a `List<OrderItem>` property on a mapped class) support cross-type element mapping - the destination element type can differ from the source element type as long as a mapping profile exists for that element pair. See [Collections How-to](_howto_collections.md#cross-type-inner-collection-mapping) for details and the supported destination collection shapes.
+
 ---
 
 ### ISimpleMap<TSource, TDestination>
@@ -749,7 +751,9 @@ SimpleMapper automatically maps properties when:
 - **Value Types**: `decimal`, `DateTime`, `DateTimeOffset`, `Guid`, `TimeSpan`
 - **Nullable Types**: `int?`, `DateTime?`, etc.
 - **Complex Types**: Any class with parameterless constructor
-- **Collections**: `List<T>`, `T[]`, `IEnumerable<T>`
+- **Collections**: `List<T>`, `T[]`, `IEnumerable<T>`, `ICollection<T>`, `IList<T>`, `IReadOnlyCollection<T>`, `IReadOnlyList<T>`, `HashSet<T>`, `ISet<T>`, `IReadOnlySet<T>`
+  - Element types may differ between source and destination collections when a mapping profile exists for the element type pair (registration order does not matter). If no such profile exists, the collection property is silently skipped.
+  - `HashSet<T>` / `ISet<T>` / `IReadOnlySet<T>` destinations use standard set equality semantics, so mapped elements that compare equal are deduplicated.
 
 ### Unsupported Scenarios
 

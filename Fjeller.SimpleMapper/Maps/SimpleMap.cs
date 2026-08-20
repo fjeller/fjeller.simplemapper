@@ -1,4 +1,5 @@
 ﻿using Fjeller.SimpleMapper.Extensions;
+using Fjeller.SimpleMapper.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,23 +129,49 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 		{
 			if ( sourcePropertyInfo.PropertyType != typeof( string ) && typeof( System.Collections.IEnumerable ).IsAssignableFrom( sourcePropertyInfo.PropertyType ) )
 			{
-				PropertyInfo? destinationPropertyInfo = destinationProperties.FirstOrDefault(
-					p => p.Name == sourcePropertyInfo.Name && p.PropertyType == sourcePropertyInfo.PropertyType );
-
-				if ( destinationPropertyInfo is not null )
+				Type? sourceElementType = GetCollectionElementType( sourcePropertyInfo.PropertyType );
+				if ( sourceElementType is null )
 				{
-					if ( _customPropertyMappings.ContainsKey( destinationPropertyInfo ) )
-					{
-						continue;
-					}
-
-					Type? elementType = GetCollectionElementType( sourcePropertyInfo.PropertyType );
-					if ( elementType is not null )
-					{
-						_collectionProperties[sourcePropertyInfo] = elementType;
-						result.Add( sourcePropertyInfo );
-					}
+					continue;
 				}
+
+				// Match by name only - the destination collection kind (List<T>, T[], IEnumerable<T>,
+				// ICollection<T>, IList<T>, IReadOnlyCollection<T>, IReadOnlyList<T>, HashSet<T>, ISet<T>,
+				// IReadOnlySet<T>) may differ from the source, as may the element type, as long as a map
+				// between the element types exists (or the element types are identical).
+				PropertyInfo? destinationPropertyInfo = destinationProperties.FirstOrDefault( p =>
+					p.Name == sourcePropertyInfo.Name &&
+					p.PropertyType != typeof( string ) &&
+					typeof( System.Collections.IEnumerable ).IsAssignableFrom( p.PropertyType ) );
+
+				if ( destinationPropertyInfo is null )
+				{
+					continue;
+				}
+
+				if ( _customPropertyMappings.ContainsKey( destinationPropertyInfo ) )
+				{
+					continue;
+				}
+
+				Type? destinationElementType = GetCollectionElementType( destinationPropertyInfo.PropertyType );
+				if ( destinationElementType is null )
+				{
+					continue;
+				}
+
+				bool elementTypesMatch = sourceElementType == destinationElementType;
+				bool hasRegisteredElementMap = !elementTypesMatch && SimpleMapCache.GetMap( sourceElementType, destinationElementType ) is not null;
+
+				if ( !elementTypesMatch && !hasRegisteredElementMap )
+				{
+					// No exact type match and no registered mapping between the element types - skip silently,
+					// consistent with how mismatched scalar properties are handled.
+					continue;
+				}
+
+				_collectionProperties[sourcePropertyInfo] = destinationElementType;
+				result.Add( sourcePropertyInfo );
 				continue;
 			}
 

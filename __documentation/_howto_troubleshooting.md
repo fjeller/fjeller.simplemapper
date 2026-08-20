@@ -300,7 +300,11 @@ public List<OrderItem> Items { get; set; }
 public List<OrderItemDto> Items { get; set; }  // ✅ Works
 public OrderItemDto[] Items { get; set; }      // ✅ Works (converted)
 public IEnumerable<OrderItemDto> Items { get; set; }  // ✅ Works
+public IReadOnlyCollection<OrderItemDto> Items { get; set; }  // ✅ Works
+public HashSet<OrderItemDto> Items { get; set; }  // ✅ Works (deduplicates equal elements)
 ```
+
+**Note:** The source and destination element types no longer need to match exactly. `List<OrderItem> -> List<OrderItemDto>` works automatically as long as `CreateMap<OrderItem, OrderItemDto>()` is registered somewhere - registration order relative to the outer map does not matter. If no element mapping profile exists, the collection property is silently skipped rather than throwing.
 
 ---
 
