@@ -29,7 +29,7 @@ internal static class CompiledMapCache
 	internal static Func<TSource, TDestination, TDestination> GetOrCreateMapper<TSource, TDestination>(
 		ISimpleMap map)
 		where TSource : class
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		string key = $"{map.MappingKey}_compiled";
 
@@ -51,7 +51,7 @@ internal static class CompiledMapCache
 	private static Func<TSource, TDestination, TDestination> CreateCompiledMapper<TSource, TDestination>(
 		ISimpleMap map)
 		where TSource : class
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		ParameterExpression sourceParam = Expression.Parameter(typeof(TSource), "source");
 		ParameterExpression destParam = Expression.Parameter(typeof(TDestination), "dest");

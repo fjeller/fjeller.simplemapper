@@ -2,15 +2,21 @@
 {
 	/// ======================================================================================================================
 	/// <summary>
-	/// Interface for the SimpleMapper providing object-to-object mapping functionality
+	/// Interface for the SimpleMapper providing object-to-object mapping functionality.
+	/// Destination types no longer require a public parameterless constructor: types with a single public
+	/// constructor (such as positional records) are also supported, as are <c>init</c>-only and <c>required</c>
+	/// destination properties. See the individual method documentation for details.
 	/// </summary>
 	/// ======================================================================================================================
 	public interface ISimpleMapper
 	{
 		/// ======================================================================================================================
 		/// <summary>
-		/// Maps one object to another. Source and destination types must be provided, as well as the objects. The destination type must have
-		/// a parameterless constructor and an object is automatically created if the destination object is null
+		/// Maps one object to another. Source and destination types must be provided, as well as the objects.
+		/// The destination type must have either a public parameterless constructor, or exactly one other public
+		/// constructor (e.g. a positional record) - in the latter case, the destination is constructed via that
+		/// constructor using placeholder values, which are then overwritten by the normal property mapping. An
+		/// object is automatically created if the destination object is null.
 		/// </summary>
 		/// <typeparam name="TSource">The source type</typeparam>
 		/// <typeparam name="TDestination">The destination type</typeparam>
@@ -20,7 +26,7 @@
 		/// ======================================================================================================================
 		TDestination Map<TSource, TDestination>(TSource source, TDestination? destination)
 			where TSource : class
-			where TDestination : class, new();
+			where TDestination : class;
 
 		/// ======================================================================================================================
 		/// <summary>
@@ -33,7 +39,7 @@
 		/// ======================================================================================================================
 		TDestination Map<TSource, TDestination>(TSource source)
 			where TSource : class
-			where TDestination : class, new();
+			where TDestination : class;
 
 		/// ======================================================================================================================
 		/// <summary>
@@ -48,7 +54,7 @@
 		/// <returns>The destination object filled with the data from the source object</returns>
 		/// ======================================================================================================================
 		TDestination? Map<TDestination>(object? source, TDestination? destination)
-			where TDestination : class, new();
+			where TDestination : class;
 
 		/// ======================================================================================================================
 		/// <summary>
@@ -61,7 +67,7 @@
 		/// ======================================================================================================================
 		IEnumerable<TDestination> Map<TSource, TDestination>(IEnumerable<TSource> source)
 			where TSource : class
-			where TDestination : class, new();
+			where TDestination : class;
 
 		/// ======================================================================================================================
 		/// <summary>
@@ -72,7 +78,7 @@
 		/// <returns>A new object of the destination type with the data of the source type</returns>
 		/// ======================================================================================================================
 		TDestination? Map<TDestination>(object? source)
-			where TDestination : class, new();
+			where TDestination : class;
 
 		/// ======================================================================================================================
 		/// <summary>
@@ -85,6 +91,6 @@
 		/// <returns>An IEnumerable of destination objects with the mapped data of the source objects, excluding null elements</returns>
 		/// ======================================================================================================================
 		IEnumerable<TDestination> Map<TDestination>(IEnumerable<object?> source) 
-			where TDestination : class, new();
+			where TDestination : class;
 	}
 }

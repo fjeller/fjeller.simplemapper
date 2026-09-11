@@ -1,4 +1,4 @@
-# Fjeller.SimpleMapper - Project Architecture Documentation
+﻿# Fjeller.SimpleMapper - Project Architecture Documentation
 
 ## Overview
 
@@ -325,13 +325,13 @@ CreateMap<Source, Destination>()
 1. **Collection Mapping**: Collections (except strings) are not automatically mapped
 2. **Value Type Boxing**: Object-based mapping methods may cause boxing for value types
 3. **Nested Objects**: Complex nested object graphs require separate mappings
-4. **Constructor Parameters**: Destination types must have parameterless constructors
+4. **Constructor Parameters**: Destination types must have either a parameterless constructor or exactly one other public constructor (e.g. a positional record); ambiguous constructor sets throw at map-preparation time
 5. **Custom Type Conversion**: No built-in support for converting between different types
 
 ### Type Constraints
 
 - Source types must be reference types (`where TSource : class`)
-- Destination types must be reference types with parameterless constructors (`where TDestination : class, new()`)
+- Destination types must be reference types (`where TDestination : class`); they must have a public parameterless constructor, or exactly one other public constructor (e.g. a positional record), and any `required` members must be resolvable from a source property or `ForMember` configuration
 - Properties must have identical names and types to be mapped
 
 ## Future Enhancement Opportunities

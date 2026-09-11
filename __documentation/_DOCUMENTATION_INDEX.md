@@ -88,6 +88,20 @@ Handle lists, arrays, and complex object graphs.
 
 ---
 
+### [Map Records, Init-Only Properties, and Required Members](_howto_records_and_required_members.md)
+**⏱ 10 minutes** | Intermediate
+
+Map to destination types without a parameterless constructor, such as positional records, and work with `init`-only and `required` members.
+
+**Covers:**
+- Mapping to positional records
+- Mapping to `init`-only properties
+- Resolving `required` members
+- Ambiguous-constructor errors
+- Mapping into an existing destination instance
+
+---
+
 ### [Troubleshooting Guide](_howto_troubleshooting.md)
 **⏱ 5-15 minutes** | All Levels
 
@@ -243,6 +257,7 @@ __documentation/
 ├── _howto_mapping_profiles.md            (How-to Guide)
 ├── _howto_custom_property_mapping.md     (How-to Guide)
 ├── _howto_collections.md                 (How-to Guide)
+├── _howto_records_and_required_members.md (How-to Guide)
 ├── _howto_troubleshooting.md             (How-to Guide)
 ├── _reference_api.md                     (Reference)
 ├── _reference_configuration.md           (Reference)
@@ -267,8 +282,9 @@ __documentation/
 3. [Mapping Profiles How-to](_howto_mapping_profiles.md)
 4. [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
 5. [Collections How-to](_howto_collections.md)
-6. [API Reference](_reference_api.md) (skim)
-7. [Troubleshooting Guide](_howto_troubleshooting.md) (reference)
+6. [Records and Required Members How-to](_howto_records_and_required_members.md)
+7. [API Reference](_reference_api.md) (skim)
+8. [Troubleshooting Guide](_howto_troubleshooting.md) (reference)
 
 ### Path 3: Performance Deep Dive (1 hour)
 1. [Getting Started Tutorial](_tutorial_getting_started.md) (quick skim)
@@ -288,6 +304,7 @@ __documentation/
 - [Mapping Profiles How-to](_howto_mapping_profiles.md)
 - [Custom Property Mappings How-to](_howto_custom_property_mapping.md)
 - [Collections How-to](_howto_collections.md)
+- [Records and Required Members How-to](_howto_records_and_required_members.md)
 - [API Reference](_reference_api.md)
 
 ### Troubleshooting

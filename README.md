@@ -14,6 +14,7 @@ A fast, lightweight object-to-object mapper for .NET with built-in dependency in
 - **📦 Lightweight**: Minimal dependencies, focused feature set
 - **✅ Type-Safe**: Compile-time checking with generic methods
 - **🔧 Flexible**: Support for collections, nested objects, and custom transformations
+- **🧬 Records-Friendly**: Map to positional records, `init`-only properties, and `required` members - no parameterless constructor needed
 
 ## Performance at a Glance
 
@@ -119,6 +120,17 @@ IEnumerable<User> users = GetUsers();
 IEnumerable<UserDto> dtos = _mapper.Map<User, UserDto>(users);
 ```
 
+### Records, Init-Only Properties, and Required Members
+```csharp
+// Positional records work without any special configuration
+public record UserDto(int Id, string Name, string Email);
+
+CreateMap<User, UserDto>();
+
+UserDto dto = _mapper.Map<User, UserDto>(user);
+```
+See the [Records and Required Members How-to](__documentation/_howto_records_and_required_members.md) guide for details, including `init`-only properties and `required` member validation.
+
 ### Property Ignoring
 ```csharp
 CreateMap<User, UserDto>()
@@ -152,6 +164,7 @@ Solve specific problems:
 - **[Dependency Injection](__documentation/_howto_dependency_injection.md)** - Configure DI in ASP.NET Core
 - **[Mapping Profiles](__documentation/_howto_mapping_profiles.md)** - Create and configure profiles
 - **[Collections & Nested Objects](__documentation/_howto_collections.md)** - Map complex structures
+- **[Records & Required Members](__documentation/_howto_records_and_required_members.md)** - Map positional records, `init`-only properties, and `required` members
 - **[Troubleshooting](__documentation/_howto_troubleshooting.md)** - Fix common issues
 
 ### 📚 Reference
@@ -173,7 +186,7 @@ Deep dive into concepts:
 ## Requirements
 
 - .NET 9 or later
-- C# 12 or later
+- C# 12 or later (C# 13 or later recommended for `required` member support)
 
 **Note**: The library targets .NET 9 and is fully compatible with both .NET 9 and .NET 10 runtimes. .NET 9 was chosen as the target framework to ensure maximum compatibility with current ecosystem packages.
 
@@ -192,6 +205,8 @@ Deep dive into concepts:
 - Primitive types (int, string, bool, etc.)
 - Value types (decimal, DateTime, Guid, etc.)
 - Complex objects (classes with properties)
+- Positional records and other destination types with a single non-parameterless public constructor
+- `init`-only and `required` destination members
 - Collections (List<T>, T[], IEnumerable<T>)
 - Nested objects (deep mapping)
 

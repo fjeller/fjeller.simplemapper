@@ -135,7 +135,7 @@ options.AddProfilesFromAssemblyContaining<Program>();
 
 **Type Constraints:**
 - `TSource: class`
-- `TDestination: class, new()`
+- `TDestination: class` (must have a public parameterless constructor, or exactly one other public constructor - e.g. a positional record; see [Records and Required Members How-to](_howto_records_and_required_members.md))
 
 **Returns:** `ISimpleMap<TSource, TDestination>`
 
