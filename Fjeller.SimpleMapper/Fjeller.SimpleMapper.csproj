@@ -7,7 +7,7 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>Fjeller.SimpleMapper</PackageId>
-		<Version>1.0.0</Version>
+		<Version>2.0.0</Version>
 		<Authors>Frank Eller</Authors>
 		<Product>SimpleMapper</Product>
 		<Description>A fast, lightweight object-to-object mapper for .NET with built-in dependency injection support and expression tree compilation for optimal performance. Up to 6x faster than reflection-based mapping.</Description>
@@ -18,7 +18,7 @@
 		<PackageTags>mapper;mapping;object-mapper;dto;automapper;entity;orm;dependency-injection;performance;expression-trees</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>Initial release of SimpleMapper with compiled expression trees, dependency injection support, and collection mapping.</PackageReleaseNotes>
+		<PackageReleaseNotes>2.0.0: Adds support for destination types without a parameterless constructor (e.g. positional records), init-only properties, and required members. Breaking change: TDestination generic constraints relaxed from "class, new()" to "class" across the public API. See CHANGELOG.md for details.</PackageReleaseNotes>
 		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 

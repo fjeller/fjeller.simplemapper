@@ -129,7 +129,7 @@ public class SimpleMapper : ISimpleMapper
 				ISimpleMap? itemMap = SimpleMapCache.GetMap( item.GetType(), elementType );
 				if ( itemMap is not null )
 				{
-					object? mappedItem = Activator.CreateInstance( elementType );
+					object? mappedItem = itemMap.CreateDestination();
 					if ( mappedItem is not null )
 					{
 						MapObject( item, mappedItem, item.GetType(), elementType );
@@ -296,11 +296,9 @@ public class SimpleMapper : ISimpleMapper
 	/// ========================================================================================================================================================= 
 	public TDestination Map<TSource, TDestination>( TSource source, TDestination? destination )
 		where TSource : class
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		Prepare();
-
-		destination ??= new TDestination();
 
 		Type sourceType = typeof( TSource );
 		Type destinationType = typeof( TDestination );
@@ -312,6 +310,8 @@ public class SimpleMapper : ISimpleMapper
 			string exceptionMessage = $"There is no mapping available between the types {sourceType.FullName} and {destinationType.FullName}";
 			throw new ArgumentException( exceptionMessage );
 		}
+
+		destination ??= (TDestination)propertyMap.CreateDestination();
 
 		Func<TSource, TDestination, TDestination> compiledMapper = CompiledMapCache.GetOrCreateMapper<TSource, TDestination>( propertyMap );
 		destination = compiledMapper( source, destination );
@@ -337,13 +337,11 @@ public class SimpleMapper : ISimpleMapper
 	/// ========================================================================================================================================================= 
 	public TDestination Map<TSource, TDestination>( TSource source )
 		where TSource : class
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		Prepare();
 
-		TDestination result = new();
-
-		return Map( source, result );
+		return Map<TSource, TDestination>( source, null );
 	}
 
 	/// ========================================================================================================================================================= 
@@ -359,7 +357,7 @@ public class SimpleMapper : ISimpleMapper
 	/// <returns>The destination object filled with the data from the source object</returns>
 	/// ========================================================================================================================================================= 
 	public TDestination? Map<TDestination>( object? source, TDestination? destination )
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		Prepare();
 
@@ -367,8 +365,6 @@ public class SimpleMapper : ISimpleMapper
 		{
 			return null;
 		}
-
-		destination ??= new TDestination();
 
 		Type destinationType = typeof( TDestination );
 		Type currentSourceType = source.GetCorrectSourceType();
@@ -386,6 +382,8 @@ public class SimpleMapper : ISimpleMapper
 			string exceptionMessage = $"There is no mapping available between the types {sourceType.FullName} and {destinationType.FullName}";
 			throw new SimpleMapperException( exceptionMessage );
 		}
+
+		destination ??= (TDestination)propertyMap.CreateDestination();
 
 		foreach ( KeyValuePair<PropertyInfo, object> customMapping in propertyMap.CustomPropertyMappings )
 		{
@@ -438,7 +436,7 @@ public class SimpleMapper : ISimpleMapper
 	/// ========================================================================================================================================================= 
 	public IEnumerable<TDestination> Map<TSource, TDestination>( IEnumerable<TSource> source )
 		where TSource : class
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		Prepare();
 
@@ -454,7 +452,7 @@ public class SimpleMapper : ISimpleMapper
 	/// <returns>A new object of the destination type with the data of the source type</returns>
 	/// ========================================================================================================================================================= 
 	public TDestination? Map<TDestination>( object? source )
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		if ( source is null )
 		{
@@ -463,8 +461,7 @@ public class SimpleMapper : ISimpleMapper
 
 		Prepare();
 
-		TDestination destination = new();
-		TDestination? result = Map( source, destination );
+		TDestination? result = Map<TDestination>( source, null );
 		return result;
 	}
 
@@ -479,7 +476,7 @@ public class SimpleMapper : ISimpleMapper
 	/// <returns>An IEnumerable of destination objects with the mapped data of the source objects, excluding null elements</returns>
 	/// ========================================================================================================================================================= 
 	public IEnumerable<TDestination> Map<TDestination>(IEnumerable<object?> source)
-		where TDestination : class, new()
+		where TDestination : class
 	{
 		Prepare();
 

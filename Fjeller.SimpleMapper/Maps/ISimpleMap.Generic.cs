@@ -9,7 +9,7 @@ namespace Fjeller.SimpleMapper.Maps;
 
 public interface ISimpleMap<TSource, TDestination> : ISimpleMap
 	where TSource : class
-	where TDestination : class, new()
+	where TDestination : class
 {
 	/// ======================================================================================================================
 	/// <summary>

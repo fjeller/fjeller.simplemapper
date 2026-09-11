@@ -2,6 +2,71 @@
 
 /// ======================================================================================================================
 /// <summary>
+/// Positional record destination for testing mapping to types without a parameterless constructor
+/// </summary>
+/// ======================================================================================================================
+public record DestinationRecord( int Id, string Name, string Email );
+
+/// ======================================================================================================================
+/// <summary>
+/// Destination with init-only properties for testing mapping to init-only members
+/// </summary>
+/// ======================================================================================================================
+public class DestinationWithInitOnlyProperties
+{
+	public int Id { get; init; }
+	public string Name { get; init; } = string.Empty;
+}
+
+/// ======================================================================================================================
+/// <summary>
+/// Destination with a required member for testing required-member validation
+/// </summary>
+/// ======================================================================================================================
+public class DestinationWithRequiredMember
+{
+	public required string Name { get; set; }
+	public int Id { get; set; }
+}
+
+/// ======================================================================================================================
+/// <summary>
+/// Destination with a required member that cannot be resolved from any source property, for testing the
+/// unresolved-required-member exception path
+/// </summary>
+/// ======================================================================================================================
+public class DestinationWithUnresolvableRequiredMember
+{
+	public required string UnresolvableRequiredProperty { get; set; }
+	public int Id { get; set; }
+}
+
+/// ======================================================================================================================
+/// <summary>
+/// Destination type with two public constructors (neither parameterless), for testing the ambiguous-constructor
+/// exception path
+/// </summary>
+/// ======================================================================================================================
+public class DestinationWithAmbiguousConstructors
+{
+	public int Id { get; }
+	public string Name { get; }
+
+	public DestinationWithAmbiguousConstructors( int id )
+	{
+		Id = id;
+		Name = string.Empty;
+	}
+
+	public DestinationWithAmbiguousConstructors( int id, string name )
+	{
+		Id = id;
+		Name = name;
+	}
+}
+
+/// ======================================================================================================================
+/// <summary>
 /// Source model for testing basic mapping scenarios
 /// </summary>
 /// ======================================================================================================================

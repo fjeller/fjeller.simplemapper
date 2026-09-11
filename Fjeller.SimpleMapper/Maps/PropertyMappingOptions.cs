@@ -12,7 +12,7 @@ namespace Fjeller.SimpleMapper.Maps;
 /// ======================================================================================================================
 public class PropertyMappingOptions<TSource, TDestination>
 	where TSource : class
-	where TDestination : class, new()
+	where TDestination : class
 {
 	/// ======================================================================================================================
 	/// <summary>

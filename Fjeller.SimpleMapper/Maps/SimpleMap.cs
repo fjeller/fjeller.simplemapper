@@ -1,23 +1,33 @@
-﻿using Fjeller.SimpleMapper.Extensions;
+﻿using Fjeller.SimpleMapper.Exceptions;
+using Fjeller.SimpleMapper.Extensions;
 using Fjeller.SimpleMapper.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Fjeller.SimpleMapper.Maps;
 
 internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestination>
 	where TSource : class
-	where TDestination : class, new()
+	where TDestination : class
 {
 	#region Fields
 
 	private Action<TSource, TDestination>? _afterMappingAction;
 
 	private bool _validPropertiesCreated;
+
+	/// <summary>
+	/// Compiled factory delegate that creates a new, empty instance of <typeparamref name="TDestination"/>
+	/// using the construction strategy determined by <see cref="DetermineConstructionStrategy"/>. Compiling
+	/// this once and caching the delegate avoids repeated reflection (<c>Activator.CreateInstance</c> /
+	/// <c>ConstructorInfo.Invoke</c>) on every call to <see cref="ISimpleMap.CreateDestination"/>.
+	/// </summary>
+	private Func<TDestination>? _destinationFactory;
 
 	private const BindingFlags _DEFAULT_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -328,7 +338,8 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 
 	/// ======================================================================================================================
 	/// <summary>
-	/// Created the valid properties
+	/// Created the valid properties. Also determines the destination type's construction strategy and validates
+	/// that any <c>required</c> destination members can be resolved.
 	/// </summary>
 	/// ======================================================================================================================
 	void ISimpleMap.CreateValidProperties()
@@ -337,7 +348,109 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 		{
 			this._validPropertiesCreated = true;
 			this.ValidProperties = GetValidMappingPropertyInfos( typeof( TSource ), typeof( TDestination ) );
+			DetermineConstructionStrategy();
+			ValidateRequiredMembers();
 		}
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Determines how instances of the destination type should be constructed: via the public parameterless
+	/// constructor if one exists (unchanged, existing behavior), or - to support positional records and similar
+	/// types - via the destination type's single public constructor, invoked with placeholder default values for
+	/// each parameter. Those placeholder values are always overwritten by the regular property-mapping pipeline
+	/// immediately after construction. Throws when the destination type has neither a parameterless constructor
+	/// nor exactly one other public constructor, since guessing which constructor to use would be unsafe.
+	/// </summary>
+	/// ======================================================================================================================
+	private void DetermineConstructionStrategy()
+	{
+		Type destinationType = typeof( TDestination );
+
+		ConstructorInfo[] publicConstructors = destinationType.GetConstructors( BindingFlags.Public | BindingFlags.Instance );
+
+		ConstructorInfo? parameterlessConstructor = Array.Find( publicConstructors, c => c.GetParameters().Length == 0 );
+		if ( parameterlessConstructor is not null )
+		{
+			// Existing, unchanged behavior: parameterless construction via `new TDestination()`, compiled once
+			// and cached as a delegate to avoid Activator.CreateInstance reflection overhead on every call.
+			_destinationFactory = Expression.Lambda<Func<TDestination>>( Expression.New( parameterlessConstructor ) ).Compile();
+			return;
+		}
+
+		if ( publicConstructors.Length != 1 )
+		{
+			throw new SimpleMapperException(
+				$"Cannot determine how to construct destination type '{destinationType.FullName}': it has no public parameterless " +
+				$"constructor and {publicConstructors.Length} other public constructors. SimpleMapper can only construct destination " +
+				"types that either have a public parameterless constructor, or exactly one other public constructor (e.g. a positional record)." );
+		}
+
+		ConstructorInfo constructor = publicConstructors[0];
+		ParameterInfo[] parameters = constructor.GetParameters();
+		Expression[] argumentExpressions = new Expression[parameters.Length];
+
+		for ( int i = 0; i < parameters.Length; i++ )
+		{
+			Type parameterType = parameters[i].ParameterType;
+			object? placeholder = parameterType.IsValueType ? Activator.CreateInstance( parameterType ) : null;
+			argumentExpressions[i] = Expression.Constant( placeholder, parameterType );
+		}
+
+		_destinationFactory = Expression.Lambda<Func<TDestination>>( Expression.New( constructor, argumentExpressions ) ).Compile();
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Validates that every destination property marked with the <c>required</c> modifier can be resolved either
+	/// from a matching source property (already reflected in <see cref="ValidProperties"/>) or from a custom
+	/// <c>ForMember</c> mapping. Throws a <see cref="SimpleMapperException"/> immediately (at registration/preparation
+	/// time) for any <c>required</c> member that cannot be resolved, rather than silently leaving it unset.
+	/// </summary>
+	/// ======================================================================================================================
+	private void ValidateRequiredMembers()
+	{
+		PropertyInfo[] destinationProperties = typeof( TDestination ).GetProperties( _DEFAULT_FLAGS );
+
+		foreach ( PropertyInfo destinationProperty in destinationProperties )
+		{
+			bool isRequired = destinationProperty.GetCustomAttributesData()
+				.Any( a => a.AttributeType.FullName == "System.Runtime.CompilerServices.RequiredMemberAttribute" );
+
+			if ( !isRequired )
+			{
+				continue;
+			}
+
+			if ( _customPropertyMappings.ContainsKey( destinationProperty ) )
+			{
+				continue;
+			}
+
+			bool isResolvedFromSource = ValidProperties.Any( sourceProperty => sourceProperty.Name == destinationProperty.Name );
+			if ( isResolvedFromSource )
+			{
+				continue;
+			}
+
+			throw new SimpleMapperException(
+				$"The required member '{destinationProperty.Name}' on destination type '{typeof( TDestination ).FullName}' could not be " +
+				$"resolved. Add a source property named '{destinationProperty.Name}' on '{typeof( TSource ).FullName}', or configure " +
+				$".ForMember(dest => dest.{destinationProperty.Name}, opt => opt.MapFrom(src => src.SourceProperty))." );
+		}
+	}
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Creates a new, empty instance of the destination type using the construction strategy determined by
+	/// <see cref="DetermineConstructionStrategy"/>. Uses a compiled factory delegate rather than reflection
+	/// (<c>Activator.CreateInstance</c> / <c>ConstructorInfo.Invoke</c>) so repeated calls stay fast.
+	/// </summary>
+	/// <returns>A new, empty instance of the destination type</returns>
+	/// ======================================================================================================================
+	object ISimpleMap.CreateDestination()
+	{
+		return _destinationFactory!();
 	}
 
 	/// ======================================================================================================================

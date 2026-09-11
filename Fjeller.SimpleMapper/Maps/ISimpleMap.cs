@@ -41,10 +41,26 @@ public interface ISimpleMap
 
 	/// ======================================================================================================================
 	/// <summary>
-	/// The internally used method to create the valid properties
+	/// The internally used method to create the valid properties. This also determines how the destination type
+	/// is constructed (parameterless constructor, or a single public constructor with parameters, e.g. for
+	/// positional records) and validates that any <c>required</c> destination members can be resolved from the
+	/// source type, a custom <c>ForMember</c> mapping. Throws a <see cref="Fjeller.SimpleMapper.Exceptions.SimpleMapperException"/>
+	/// if the destination type's constructor is ambiguous, or if a <c>required</c> member cannot be resolved.
 	/// </summary>
 	/// ======================================================================================================================
 	void CreateValidProperties();
+
+	/// ======================================================================================================================
+	/// <summary>
+	/// Creates a new, empty instance of the destination type using the constructor strategy determined by
+	/// <see cref="CreateValidProperties"/> (parameterless constructor when available, otherwise the destination
+	/// type's single public constructor invoked with default values for its parameters). All destination properties -
+	/// including ones supplied via the constructor - are still fully populated afterwards through the normal
+	/// property-mapping pipeline, so constructor-supplied placeholder values are always overwritten with mapped data.
+	/// </summary>
+	/// <returns>A new, empty instance of the destination type</returns>
+	/// ======================================================================================================================
+	object CreateDestination();
 
 	/// ======================================================================================================================
 	/// <summary>

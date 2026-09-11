@@ -303,6 +303,36 @@ CreateMap<User, UserDto>()
 
 ---
 
+### Why Constructor-Selection Instead of a Strict `new()` Constraint?
+
+**Considered:** Keep the original `where TDestination : class, new()` constraint, requiring every destination type to expose a public parameterless constructor.
+
+**Rejected Because:**
+- ❌ Excludes positional `record`/`record struct` destination types, which have become idiomatic for DTOs in modern C#
+- ❌ Excludes destination types that rely on `init`-only or `required` members for immutability guarantees
+- ❌ Forces consumers to add a parameterless constructor purely to satisfy the mapper, working against the destination type's own design
+
+**Our Approach:** At map-preparation time, SimpleMapper inspects `TDestination`'s public constructors and picks a construction strategy:
+
+```csharp
+// Parameterless constructor - unchanged behavior
+public class UserDto { public int Id { get; set; } public string Name { get; set; } }
+
+// Single non-parameterless constructor - now supported
+public record UserRecordDto(int Id, string Name);
+```
+
+For the second case, the constructor is invoked once with placeholder default values, and those values are immediately overwritten by the normal property-mapping pipeline - so the constructor is only used for object construction, never as a source of mapped data. If `TDestination` exposes more than one non-parameterless constructor (and no parameterless constructor), the ambiguity is surfaced immediately as a `SimpleMapperException` rather than guessed at silently. `required` members are validated the same way: if one cannot be resolved from a source property or `ForMember` configuration, preparation fails fast instead of producing a half-initialized object.
+
+**Benefits:**
+- ✅ Supports records and other immutable destination shapes without weakening type safety
+- ✅ Fails fast and loudly on ambiguous constructors or unresolved `required` members, instead of silently producing incorrect objects
+- ✅ Fully backward compatible for existing destination types that already have a parameterless constructor
+
+**See Also:** [Records and Required Members How-to](_howto_records_and_required_members.md)
+
+---
+
 ## Extension Points
 
 ### Custom Mapping Logic

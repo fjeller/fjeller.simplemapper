@@ -27,12 +27,12 @@ TDestination Map<TSource, TDestination>(
     TSource source,
     TDestination? destination)
     where TSource : class
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
 - `TSource` - Source object type
-- `TDestination` - Destination object type
+- `TDestination` - Destination object type. Must be a public parameterless-constructible type, or a type with exactly one other public constructor (e.g. a positional record). See [Records and Required Members How-to](_howto_records_and_required_members.md).
 
 **Parameters:**
 - `source` - Source object to map from
@@ -60,12 +60,12 @@ Maps properties from source object to a new destination object.
 ```csharp
 TDestination Map<TSource, TDestination>(TSource source)
     where TSource : class
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
 - `TSource` - Source object type
-- `TDestination` - Destination object type
+- `TDestination` - Destination object type. Must be a public parameterless-constructible type, or a type with exactly one other public constructor (e.g. a positional record).
 
 **Parameters:**
 - `source` - Source object to map from
@@ -92,7 +92,7 @@ Maps from dynamic source type to destination type.
 TDestination? Map<TDestination>(
     object? source,
     TDestination? destination)
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
@@ -122,7 +122,7 @@ Maps from dynamic source type to new destination object.
 **Signature:**
 ```csharp
 TDestination? Map<TDestination>(object? source)
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
@@ -150,7 +150,7 @@ Maps collection of source objects to collection of destination objects.
 IEnumerable<TDestination> Map<TSource, TDestination>(
     IEnumerable<TSource> source)
     where TSource : class
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
@@ -382,7 +382,7 @@ Creates a mapping configuration between two types.
 ```csharp
 protected ISimpleMap<TSource, TDestination> CreateMap<TSource, TDestination>()
     where TSource : class
-    where TDestination : class, new()
+    where TDestination : class
 ```
 
 **Type Parameters:**
@@ -404,6 +404,23 @@ public class UserMappingProfile : MappingProfile
 
 ---
 
+## Destination Construction
+
+Starting with v2.0.0, `TDestination` no longer requires a public parameterless constructor. When a map is prepared, SimpleMapper determines how to construct `TDestination` instances using the following rules:
+
+1. **Parameterless constructor** - if `TDestination` has a public parameterless constructor, it is used (unchanged, pre-2.0.0 behavior).
+2. **Single non-parameterless constructor** - if `TDestination` has no parameterless constructor but exactly one other public constructor (for example, a positional `record`), that constructor is invoked with placeholder default values for its parameters. Those placeholder values are always immediately overwritten by the normal property-mapping pipeline, so no data from the constructor call is retained in the final result.
+3. **Ambiguous constructors** - if `TDestination` has neither a parameterless constructor nor exactly one other public constructor, a `SimpleMapperException` is thrown when the map is prepared (typically on first use), since SimpleMapper cannot determine which constructor to use.
+
+Destination `init`-only properties and `required` members are both supported as mapping targets:
+
+- `init`-only properties are written to like any other settable property.
+- `required` members must be resolvable from a matching source property or a `ForMember`/`MapFrom` configuration; if a `required` member cannot be resolved, a `SimpleMapperException` is thrown when the map is prepared.
+
+See the [Records and Required Members How-to](_howto_records_and_required_members.md) for full examples.
+
+---
+
 ## Configuration Classes
 
 ### PropertyMappingOptions<TSource, TDestination>
@@ -418,7 +435,7 @@ Configuration options for custom property mapping used with `ForMember`.
 
 **Constraints:**
 - `TSource : class`
-- `TDestination : class, new()`
+- `TDestination : class`
 
 #### Methods
 

@@ -1,4 +1,4 @@
-# Fjeller.SimpleMapper - Performance Optimization Guide
+﻿# Fjeller.SimpleMapper - Performance Optimization Guide
 
 **Date**: 2024
 **Project**: Fjeller.SimpleMapper
@@ -93,7 +93,7 @@ internal static class CompiledMapCache
     internal static Func<TSource, TDestination, TDestination> GetOrCreateMapper<TSource, TDestination>(
         ISimpleMap map)
         where TSource : class
-        where TDestination : class, new()
+        where TDestination : class
     {
         string key = $"{map.MappingKey}_compiled";
         
@@ -105,7 +105,7 @@ internal static class CompiledMapCache
     private static Func<TSource, TDestination, TDestination> CreateCompiledMapper<TSource, TDestination>(
         ISimpleMap map)
         where TSource : class
-        where TDestination : class, new()
+        where TDestination : class
     {
         ParameterExpression sourceParam = Expression.Parameter(typeof(TSource), "source");
         ParameterExpression destParam = Expression.Parameter(typeof(TDestination), "dest");
@@ -143,10 +143,9 @@ internal static class CompiledMapCache
 ```csharp
 public TDestination Map<TSource, TDestination>(TSource source, TDestination? destination)
     where TSource : class
-    where TDestination : class, new()
+    where TDestination : class
 {
     Prepare();
-    destination ??= new TDestination();
 
     Type sourceType = typeof(TSource);
     Type destinationType = typeof(TDestination);
@@ -156,6 +155,8 @@ public TDestination Map<TSource, TDestination>(TSource source, TDestination? des
     {
         throw new ArgumentException($"There is no mapping available between the types {sourceType.FullName} and {destinationType.FullName}");
     }
+
+    destination ??= propertyMap.CreateDestination();
 
     // Use compiled mapper for non-collection properties
     var compiledMapper = CompiledMapCache.GetOrCreateMapper<TSource, TDestination>(propertyMap);
