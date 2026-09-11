@@ -39,6 +39,28 @@ All notable changes to this project are documented in this file.
   record properties via `Expression.Assign`/`PropertyInfo.SetValue`, since the C# `init` restriction is enforced
   only by the C# compiler, not by the CLR or expression trees. No rewrite of the compiled mapping codegen was
   required to support this.
+- Destination construction (`ISimpleMap.CreateDestination()`) compiles and caches a factory delegate
+  (`Expression.New(...)`) per map instead of calling `Activator.CreateInstance`/`ConstructorInfo.Invoke` on every
+  mapping call, so introducing constructor-based construction does not add reflection overhead to the hot path.
+
+## [1.1.1]
+
+### Security
+
+- Added an explicit `Microsoft.Build.Tasks.Git` package reference to address a reported vulnerability in a
+  transitive dependency.
+
+## [1.1.0]
+
+> **Note:** The Git tag `1.1.0` was created for this release, but the `<Version>` element in
+> `Fjeller.SimpleMapper.csproj` was not updated at the time and remained `1.0.0`.
+
+### Added
+
+- Automatic (deep) mapping support for collection-valued properties, including `List<T>`, `IEnumerable<T>`,
+  `IReadOnlyCollection<T>`, `HashSet<T>`, and arrays. Collection elements are mapped individually using the
+  configured map for their element types, so nested complex object graphs inside collections are properly
+  translated between source and destination shapes instead of being shallow-copied or skipped.
 
 ## [1.0.0]
 

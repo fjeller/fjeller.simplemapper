@@ -22,16 +22,12 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	private bool _validPropertiesCreated;
 
 	/// <summary>
-	/// The constructor to invoke when the destination type has no public parameterless constructor
-	/// (e.g. a positional record). Null when the destination type's public parameterless constructor is used.
+	/// Compiled factory delegate that creates a new, empty instance of <typeparamref name="TDestination"/>
+	/// using the construction strategy determined by <see cref="DetermineConstructionStrategy"/>. Compiling
+	/// this once and caching the delegate avoids repeated reflection (<c>Activator.CreateInstance</c> /
+	/// <c>ConstructorInfo.Invoke</c>) on every call to <see cref="ISimpleMap.CreateDestination"/>.
 	/// </summary>
-	private ConstructorInfo? _nonDefaultConstructor;
-
-	/// <summary>
-	/// Placeholder argument values used to invoke <see cref="_nonDefaultConstructor"/>. These are always
-	/// overwritten by the normal property-mapping pipeline immediately after construction.
-	/// </summary>
-	private object?[]? _nonDefaultConstructorArgs;
+	private Func<TDestination>? _destinationFactory;
 
 	private const BindingFlags _DEFAULT_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -376,9 +372,9 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 		ConstructorInfo? parameterlessConstructor = Array.Find( publicConstructors, c => c.GetParameters().Length == 0 );
 		if ( parameterlessConstructor is not null )
 		{
-			// Existing, unchanged behavior: parameterless construction via `new TDestination()`.
-			_nonDefaultConstructor = null;
-			_nonDefaultConstructorArgs = null;
+			// Existing, unchanged behavior: parameterless construction via `new TDestination()`, compiled once
+			// and cached as a delegate to avoid Activator.CreateInstance reflection overhead on every call.
+			_destinationFactory = Expression.Lambda<Func<TDestination>>( Expression.New( parameterlessConstructor ) ).Compile();
 			return;
 		}
 
@@ -392,16 +388,16 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 
 		ConstructorInfo constructor = publicConstructors[0];
 		ParameterInfo[] parameters = constructor.GetParameters();
-		object?[] args = new object?[parameters.Length];
+		Expression[] argumentExpressions = new Expression[parameters.Length];
 
 		for ( int i = 0; i < parameters.Length; i++ )
 		{
 			Type parameterType = parameters[i].ParameterType;
-			args[i] = parameterType.IsValueType ? Activator.CreateInstance( parameterType ) : null;
+			object? placeholder = parameterType.IsValueType ? Activator.CreateInstance( parameterType ) : null;
+			argumentExpressions[i] = Expression.Constant( placeholder, parameterType );
 		}
 
-		_nonDefaultConstructor = constructor;
-		_nonDefaultConstructorArgs = args;
+		_destinationFactory = Expression.Lambda<Func<TDestination>>( Expression.New( constructor, argumentExpressions ) ).Compile();
 	}
 
 	/// ======================================================================================================================
@@ -447,18 +443,14 @@ internal class SimpleMap<TSource, TDestination> : ISimpleMap<TSource, TDestinati
 	/// ======================================================================================================================
 	/// <summary>
 	/// Creates a new, empty instance of the destination type using the construction strategy determined by
-	/// <see cref="DetermineConstructionStrategy"/>.
+	/// <see cref="DetermineConstructionStrategy"/>. Uses a compiled factory delegate rather than reflection
+	/// (<c>Activator.CreateInstance</c> / <c>ConstructorInfo.Invoke</c>) so repeated calls stay fast.
 	/// </summary>
 	/// <returns>A new, empty instance of the destination type</returns>
 	/// ======================================================================================================================
 	object ISimpleMap.CreateDestination()
 	{
-		if ( _nonDefaultConstructor is null )
-		{
-			return Activator.CreateInstance( typeof( TDestination ) )!;
-		}
-
-		return _nonDefaultConstructor.Invoke( _nonDefaultConstructorArgs )!;
+		return _destinationFactory!();
 	}
 
 	/// ======================================================================================================================
